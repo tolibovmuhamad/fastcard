@@ -19,12 +19,12 @@
 ## Этап 1. Настройка проекта
 
 - [x] 1.1 Инициализировать Vite + React + TypeScript (Vite 8, React 19, TS 6; alias `@`→`src`; `npm run dev/build` работают)
-- [ ] 1.2 Подключить Tailwind CSS + shadcn/ui (+ Radix UI)
-- [ ] 1.3 Создать структуру папок `src/` (app, pages, components, features, api, store, types, lib, routes)
-- [ ] 1.4 Настроить ESLint + Prettier
-- [ ] 1.5 Создать axios-инстанс с интерсепторами (заглушки)
-- [ ] 1.6 Настроить базовый роутинг React Router + ленивую загрузку маршрутов
-- [ ] 1.7 Каркас Layout: Header и Footer (общие элементы из ТЗ 6.0)
+- [x] 1.2 Подключить Tailwind CSS + shadcn/ui (Tailwind **v4**, плагин `@tailwindcss/vite`, тема в `index.css`; shadcn `new-york`/`neutral`, `components.json`, `cn`, компонент Button + Radix Slot)
+- [x] 1.3 Создать структуру папок `src/` (app, pages, components/ui, features, api, store, types, lib, routes, hooks — пустые с `.gitkeep`)
+- [x] 1.4 Настроить ESLint + Prettier (flat config `eslint.config.js`; убран шаблонный oxlint; скрипты `lint`/`lint:fix`/`format`/`format:check`)
+- [x] 1.5 Создать axios-инстанс с интерсепторами (`src/api/`: `client` + Bearer-интерсептор и обработка `401`→logout/redirect; `config` из env `VITE_API_BASE_URL`; `tokenStorage` в localStorage; `.env.example`; типизация env)
+- [x] 1.6 Настроить базовый роутинг React Router (v8) + ленивую загрузку (`createBrowserRouter`, `RouterProvider` в `App`; 12 страниц-заглушек + 404 + `/admin`; `React.lazy` → отдельные чанки; пути в `routes/paths.ts`; временная навигация в `RootLayout` до 1.7)
+- [x] 1.7 Каркас Layout: Header и Footer (ТЗ 6.0) — `components/layout/`: Header (логотип, меню Home/Contact/About/Sign Up, поиск→каталог, иконки избранного/корзины/аккаунта со счётчиками-заготовками) и Footer (Exclusive+подписка-заглушка, Support, Account, Quick Link, соц-иконки инлайн-SVG, копирайт). Вставлены в `RootLayout` вместо временной навигации. Добавлен shadcn `Input`
 
 ## Этап 2. Авторизация
 

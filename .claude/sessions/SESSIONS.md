@@ -4,6 +4,12 @@
 
 ---
 
+## Сессия №2 — 2026-06-24
+- Этап 1 закрыт целиком (1.2–1.7): Tailwind v4 + shadcn/ui, структура `src/`, ESLint+Prettier.
+- axios-слой (`src/api/`: client/config/tokenStorage, Bearer-интерсептор, обработка 401).
+- Роутинг React Router v8 (lazy-загрузка, 12 страниц + 404 + `/admin`), каркас Layout (Header/Footer).
+- Обновлён `CLAUDE.md`; `npm run build` проходит. Дальше — Этап 2 (авторизация, задача 2.1).
+
 ## Сессия №1 — 2026-06-24
 - Этап 0 закрыт: сверка со Swagger/Figma → `docs/SOURCES_NOTES.md` (в API нет заказов/refresh/OAuth/сброса пароля).
 - Решения по блокерам: название = `fastcart`; заказы — фронт-мок (localStorage).

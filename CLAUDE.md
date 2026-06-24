@@ -26,10 +26,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run dev` — дев-сервер (http://localhost:5173)
 - `npm run build` — прод-сборка (`tsc -b && vite build` → `dist/`)
 - `npm run preview` — предпросмотр сборки
-- `npm run lint` — линтинг (сейчас `oxlint` из шаблона; ESLint+Prettier — задача 1.4)
+- `npm run lint` / `npm run lint:fix` — ESLint (flat config, `eslint.config.js`)
+- `npm run format` / `npm run format:check` — Prettier
 
 Алиас импорта: `@/*` → `src/*` (настроен в `vite.config.ts` и `tsconfig.app.json`).
-Tailwind/shadcn, структура папок и роутинг — следующие задачи Этапа 1.
+
+**Вёрстка (Этап 1.2):** Tailwind CSS **v4** (CSS-first, плагин `@tailwindcss/vite`; тема и
+CSS-переменные в `src/index.css`) + shadcn/ui (стиль `new-york`, базовый цвет `neutral`,
+конфиг `components.json`, утилита `cn` в `src/lib/utils.ts`, компоненты в `src/components/ui/`).
+Добавление компонентов: `npx shadcn@latest add <name>`.
+
+**Структура `src/` (Этап 1.3):** `app/ pages/ components/ (components/ui/) features/ api/ store/
+types/ lib/ routes/ hooks/`. Пустые папки помечены `.gitkeep`.
+
+**API-слой (Этап 1.5):** `src/api/` — axios-инстанс `apiClient` (`client.ts`) с интерсепторами
+(Bearer-токен из `tokenStorage`; при `401` — сброс токена и редирект на `/login`, refresh нет),
+базовый адрес из `VITE_API_BASE_URL` (`config.ts`, `.env.example`). Токен — в localStorage
+(`tokenStorage.ts`). Логаут через `authStore` подключится на Этапе 2.
+
+**Роутинг (Этап 1.6):** React Router v8, `createBrowserRouter` + `RouterProvider` (в `App.tsx`).
+Конфиг — `src/routes/router.tsx`, пути — `src/routes/paths.ts` (`ROUTES`). Страницы (`src/pages/`,
+по одной на маршрут) грузятся лениво через `React.lazy` (отдельные чанки); Suspense-фолбэк
+`PageLoader` — в лейаутах `src/app/RootLayout.tsx` (витрина) и `src/app/AdminLayout.tsx` (`/admin`).
+
+**Layout (Этап 1.7):** `src/components/layout/` — `Header` (логотип, меню, поиск→каталог, иконки
+избранного/корзины/аккаунта; счётчики наполнятся из сторов на Этапах 4–5) и `Footer` (Exclusive +
+подписка-заглушка, Support, Account, Quick Link, соц-иконки — инлайн-SVG в `SocialIcons.tsx`, т.к.
+lucide больше не поставляет бренд-логотипы). Используются в `RootLayout`. shadcn-компоненты:
+`Button`, `Input` (`src/components/ui/`).
+
+**Этап 1 завершён.** Следующий — Этап 2 (авторизация). На интеграции уточнить по факту: форма ответа
+`POST /Account/login`, claim роли в JWT, логин по `userName` vs email (см. `docs/SOURCES_NOTES.md` §4).
 
 `TZ_fastcard.md` — главный источник истины по объёму и решениям. Прочитай его перед началом работы.
 Вопросы по стеку, структуре и поведению решаются по этому документу, а не по догадкам.
