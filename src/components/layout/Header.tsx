@@ -1,26 +1,49 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
-import { Heart, Search, ShoppingCart, User } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Heart, LogOut, Search, ShoppingCart, User, UserCircle } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router'
 
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/routes/paths'
+import { useAuthStore } from '@/store/authStore'
+import { selectTotalItems, useCartStore } from '@/store/cartStore'
+import { selectFavoritesCount, useFavoritesStore } from '@/store/favoritesStore'
 
-// Пункты меню по ТЗ 6.0. «Sign Up» ведёт на регистрацию.
-// Состояние авторизации (выпадающее меню аккаунта) подключится на Этапе 2.
-const NAV_ITEMS = [
+const NAV_ITEMS_GUEST = [
   { to: ROUTES.home, label: 'Home', end: true },
   { to: ROUTES.contact, label: 'Contact' },
   { to: ROUTES.about, label: 'About' },
   { to: ROUTES.register, label: 'Sign Up' },
 ]
 
+const NAV_ITEMS_AUTH = [
+  { to: ROUTES.home, label: 'Home', end: true },
+  { to: ROUTES.contact, label: 'Contact' },
+  { to: ROUTES.about, label: 'About' },
+]
+
 export default function Header() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
 
-  // Поиск (ТЗ 3.4) пока ведёт в каталог с query-параметром —
-  // фактическая фильтрация будет реализована на Этапе 3.
+  const { isAuthenticated, user, logout } = useAuthStore()
+  const cartCount = useCartStore(selectTotalItems)
+  const favCount = useFavoritesStore(selectFavoritesCount)
+
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [menuOpen])
+
   function handleSearch(event: FormEvent) {
     event.preventDefault()
     const trimmed = query.trim()
@@ -31,6 +54,14 @@ export default function Header() {
     )
   }
 
+  function handleLogout() {
+    setMenuOpen(false)
+    logout()
+    navigate(ROUTES.home)
+  }
+
+  const navItems = isAuthenticated ? NAV_ITEMS_AUTH : NAV_ITEMS_GUEST
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 md:gap-8">
@@ -39,9 +70,9 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavLink
-              key={item.to}
+              key={item.to + item.label}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
@@ -79,15 +110,63 @@ export default function Header() {
         </form>
 
         <div className="ml-auto flex items-center gap-1 sm:ml-0">
-          <IconLink to={ROUTES.wishlist} label="Избранное" count={0}>
+          <IconLink to={ROUTES.wishlist} label="Избранное" count={favCount}>
             <Heart className="size-5" />
           </IconLink>
-          <IconLink to={ROUTES.cart} label="Корзина" count={0}>
+          <IconLink to={ROUTES.cart} label="Корзина" count={cartCount}>
             <ShoppingCart className="size-5" />
           </IconLink>
-          <IconLink to={ROUTES.account} label="Аккаунт">
-            <User className="size-5" />
-          </IconLink>
+
+          {isAuthenticated ? (
+            <div ref={menuRef} className="relative">
+              <button
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label="Аккаунт"
+                className={cn(
+                  'hover:bg-accent relative inline-flex size-9 items-center justify-center rounded-md transition-colors',
+                  menuOpen && 'bg-accent'
+                )}
+              >
+                <UserCircle className="size-5" />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-11 z-50 w-44 rounded-md border bg-background shadow-lg py-1">
+                  <p className="px-3 py-1 text-xs text-muted-foreground truncate">
+                    {user?.userName}
+                  </p>
+                  <div className="my-1 border-t" />
+                  <Link
+                    to={ROUTES.account}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    <User className="size-4" />
+                    Account
+                  </Link>
+                  <Link
+                    to={ROUTES.account + '?tab=orders'}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    <ShoppingCart className="size-4" />
+                    My Order
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                  >
+                    <LogOut className="size-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <IconLink to={ROUTES.login} label="Войти">
+              <User className="size-5" />
+            </IconLink>
+          )}
         </div>
       </div>
     </header>
@@ -113,7 +192,6 @@ function IconLink({
       className="hover:bg-accent relative inline-flex size-9 items-center justify-center rounded-md transition-colors"
     >
       {children}
-      {/* Счётчики наполнятся из cartStore/favoritesStore (Этапы 4–5). */}
       {count !== undefined && count > 0 && (
         <span className="bg-destructive text-destructive-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[10px] font-medium">
           {count > 99 ? '99+' : count}

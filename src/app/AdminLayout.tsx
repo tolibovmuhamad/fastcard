@@ -1,12 +1,16 @@
 import { Suspense } from 'react'
-import { Link, Outlet } from 'react-router'
+import { Link, Navigate, Outlet } from 'react-router'
 
 import PageLoader from '@/components/PageLoader'
 import { ROUTES } from '@/routes/paths'
+import { useAuthStore } from '@/store/authStore'
 
-// Каркас лейаута админки. Полноценная навигация и guard роли администратора —
-// Этапы 6 и 2.7.
 export default function AdminLayout() {
+  const { isAuthenticated, isAdmin } = useAuthStore()
+
+  if (!isAuthenticated) return <Navigate to={ROUTES.login} replace />
+  if (!isAdmin) return <Navigate to={ROUTES.home} replace />
+
   return (
     <div className="flex min-h-svh flex-col">
       <header className="border-b">

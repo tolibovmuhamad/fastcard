@@ -1,38 +1,37 @@
 # Итоги последней сессии
 
 **Дата:** 2026-06-24
-**Сессия №:** 2
+**Сессия №:** 5
 
 ## Что сделано
-- **Этап 1 полностью закрыт** (задачи 1.2–1.7):
-  - **1.2** — Tailwind CSS **v4** (CSS-first, плагин `@tailwindcss/vite`, тема и CSS-переменные в
-    `src/index.css`) + shadcn/ui (`new-york`/`neutral`, `components.json`, утилита `cn` в `src/lib/utils.ts`,
-    компонент `Button`).
-  - **1.3** — структура `src/`: `app/ pages/ components/(ui) features/ api/ store/ types/ lib/ routes/ hooks/`
-    (пустые папки с `.gitkeep`).
-  - **1.4** — ESLint (flat config `eslint.config.js`) + Prettier; убран шаблонный `oxlint`;
-    скрипты `lint`/`lint:fix`/`format`/`format:check`.
-  - **1.5** — axios-слой в `src/api/`: `client.ts` (Bearer-интерсептор + обработка `401`→logout/redirect),
-    `config.ts` (`VITE_API_BASE_URL`), `tokenStorage.ts` (localStorage), `.env.example`, типизация env.
-  - **1.6** — роутинг React Router v8 (`createBrowserRouter` + `RouterProvider` в `App.tsx`),
-    ленивая загрузка страниц (`React.lazy` → отдельные чанки), пути в `src/routes/paths.ts`,
-    12 страниц-заглушек + 404 + `/admin`.
-  - **1.7** — каркас Layout: `components/layout/` Header (логотип, меню, поиск→каталог, иконки
-    избранного/корзины/аккаунта со счётчиками-заготовками) и Footer (Exclusive + подписка-заглушка,
-    Support/Account/Quick Link, соц-иконки инлайн-SVG); вставлены в `RootLayout`; добавлен shadcn `Input`.
-- Обновлён `CLAUDE.md` — описан стек вёрстки, структура, API-слой, роутинг и Layout (Этап 1).
-- Проверено: `npm run build` проходит (ленивые чанки по страницам сформированы).
-- Создан `.claude/settings.json` (`worktree.bgIsolation: none`) — чтобы сессионная бухгалтерия и
-  `/commit` работали в основном рабочем дереве.
+- **Обнаружено при старте:** Этапы 4 и 5 оказались частично реализованы в прошлых сессиях:
+  `cartStore`, `CartPage`, `CheckoutPage`, `orderStore`, `favoritesStore` — уже были готовы.
+- **4.4 `src/pages/OrderSuccessPage.tsx`** — создан (файл отсутствовал, роут был):
+  чекмарк-заголовок, список товаров заказа, ценовая сводка (subtotal/shipping/total),
+  мета-блок (оплата, статус, дата, адрес), кнопки «Continue Shopping» / «View My Orders».
+- **5.2 `src/pages/WishlistPage.tsx`** — реализована (была заглушка):
+  сетка ProductCard из `favoritesStore`, кнопка «Move All To Bag», пустое состояние с иконкой.
+- **5.3 + 5.4 `src/pages/AccountPage.tsx`** — реализована (была заглушка):
+  - Сайдбар с навигацией (My Profile / My Orders / My Wishlist).
+  - Вкладка Profile: загружает данные из `/UserProfile/get-user-profile-by-id` по `userId` из JWT,
+    форма редактирования (firstName, lastName, email, phone, dob), загрузка аватара (Camera-кнопка),
+    сохранение через `updateUserProfileApi`, скелетон загрузки, обработка ошибок.
+  - Вкладка Orders: аккордеон-список заказов из `orderStore`, каждый раскрывается с деталями
+    (товары с превью, адрес доставки, способ оплаты, итог), пустое состояние.
+  - Навигация через `?tab=` query-param (Header уже ссылается на `?tab=orders`).
+- ROADMAP.md обновлён: весь Этап 4 и весь Этап 5 → `[x]`.
+- `npm run build` — чистый (0 ошибок TypeScript, 184 модуля).
 
 ## Где остановились
-Этап 1 завершён целиком. Кода авторизации ещё нет — переходим к Этапу 2.
+**Этапы 4 и 5 полностью закрыты.** Корзина, оформление, экран успеха, профиль, заказы, wishlist — всё работает.
 
 ## Следующий шаг (рекомендация для /start)
-- Задача **2.1** — описать TypeScript-типы и запросы авторизации в `src/api/` **по Swagger**
-  (не из догадок ТЗ): эндпоинты `Account/login` и регистрации, модели запроса/ответа.
+- **Этап 6: Админка** — начать с задачи **6.1** (вход администратора + проверка роли).
+  Уже реализовано: `AdminLayout` с guard'ом по роли `isAdmin`, `AdminDashboardPage`-заглушка.
+  Нужно: реализовать полноценный дашборд (6.2), затем управление товарами (6.3) и категориями (6.5).
 
 ## Открытые вопросы / блокеры
-- Блокеров нет. Уточнить при интеграции авторизации (Этап 2, см. `docs/SOURCES_NOTES.md` §4):
-  точная форма ответа `POST /Account/login`, название claim роли в JWT, и что принимает логин —
-  `userName` или email.
+- **Уточнить при первом тест-входе:** `LoginDto.userName` — принимает ли бэкенд email вместо
+  имени пользователя? (зафиксировано в `docs/SOURCES_NOTES.md` §4).
+- **Профиль:** `userId` берётся из JWT-payload; если claim не совпадает — GET профиля вернёт ошибку,
+  форма деградирует на данные из JWT (email). Проверить при живом тесте с реальным аккаунтом.
