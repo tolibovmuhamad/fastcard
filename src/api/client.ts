@@ -61,3 +61,29 @@ function handleUnauthorized(): void {
     window.location.assign(loginPath)
   }
 }
+
+/**
+ * Нормализует любой ответ ASP.NET Core к T[].
+ * Поддерживаемые форматы:
+ *   - обычный массив:                  [...]
+ *   - $values (PreserveReferences):    { "$id":"1", "$values": [...] }
+ *   - обёртка data:                    { data: [...] }
+ *   - обёртка result:                  { result: [...] }
+ *   - обёртка items:                   { items: [...] }
+ *   - вложенный $values в data:        { data: { "$values": [...] } }
+ */
+export function toArray<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[]
+  if (data && typeof data === 'object') {
+    const obj = data as Record<string, unknown>
+    for (const key of ['$values', 'data', 'result', 'items', 'value']) {
+      const val = obj[key]
+      if (Array.isArray(val)) return val as T[]
+      // вложенный $values
+      if (val && typeof val === 'object' && Array.isArray((val as Record<string, unknown>)['$values'])) {
+        return (val as Record<string, unknown>)['$values'] as T[]
+      }
+    }
+  }
+  return []
+}

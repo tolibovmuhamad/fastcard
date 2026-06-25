@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Heart, LogOut, Search, ShoppingCart, User, UserCircle } from 'lucide-react'
+import { Heart, LogOut, Menu, Search, ShoppingCart, User, UserCircle, X } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router'
 
 import { Input } from '@/components/ui/input'
@@ -30,19 +30,26 @@ export default function Header() {
   const cartCount = useCartStore(selectTotalItems)
   const favCount = useFavoritesStore(selectFavoritesCount)
 
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const accountRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!menuOpen) return
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
+    if (!accountOpen) return
+    function onClickOutside(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [menuOpen])
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [accountOpen])
+
+  // Блокируем скролл пока открыто мобильное меню
+  useEffect(() => {
+    document.body.style.overflow = mobileNavOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileNavOpen])
 
   function handleSearch(event: FormEvent) {
     event.preventDefault()
@@ -52,10 +59,12 @@ export default function Header() {
         ? `${ROUTES.products}?q=${encodeURIComponent(trimmed)}`
         : ROUTES.products
     )
+    setMobileNavOpen(false)
   }
 
   function handleLogout() {
-    setMenuOpen(false)
+    setAccountOpen(false)
+    setMobileNavOpen(false)
     logout()
     navigate(ROUTES.home)
   }
@@ -63,113 +72,206 @@ export default function Header() {
   const navItems = isAuthenticated ? NAV_ITEMS_AUTH : NAV_ITEMS_GUEST
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 md:gap-8">
-        <Link to={ROUTES.home} className="text-xl font-bold tracking-tight">
-          fastcart
-        </Link>
-
-        <nav className="hidden items-center gap-6 text-sm md:flex">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to + item.label}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'text-foreground/80 hover:text-foreground transition-colors',
-                  isActive && 'text-foreground underline underline-offset-8'
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <form
-          onSubmit={handleSearch}
-          className="relative ml-auto hidden w-full max-w-xs sm:block"
-          role="search"
-        >
-          <Input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="What are you looking for?"
-            aria-label="Поиск товаров"
-            className="bg-muted/50 pr-9"
-          />
-          <button
-            type="submit"
-            aria-label="Найти"
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+    <>
+      <header className="sticky top-0 z-40 border-b bg-background">
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 md:gap-8">
+          <Link
+            to={ROUTES.home}
+            className="text-xl font-bold tracking-tight"
+            onClick={() => setMobileNavOpen(false)}
           >
-            <Search className="size-4" />
-          </button>
-        </form>
+            fastcart
+          </Link>
 
-        <div className="ml-auto flex items-center gap-1 sm:ml-0">
-          <IconLink to={ROUTES.wishlist} label="Избранное" count={favCount}>
-            <Heart className="size-5" />
-          </IconLink>
-          <IconLink to={ROUTES.cart} label="Корзина" count={cartCount}>
-            <ShoppingCart className="size-5" />
-          </IconLink>
-
-          {isAuthenticated ? (
-            <div ref={menuRef} className="relative">
-              <button
-                onClick={() => setMenuOpen((o) => !o)}
-                aria-label="Аккаунт"
-                className={cn(
-                  'hover:bg-accent relative inline-flex size-9 items-center justify-center rounded-md transition-colors',
-                  menuOpen && 'bg-accent'
-                )}
+          {/* Десктоп-навигация */}
+          <nav className="hidden items-center gap-6 text-sm md:flex">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to + item.label}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  cn(
+                    'text-foreground/80 hover:text-foreground transition-colors',
+                    isActive && 'text-foreground underline underline-offset-8'
+                  )
+                }
               >
-                <UserCircle className="size-5" />
-              </button>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
 
-              {menuOpen && (
-                <div className="absolute right-0 top-11 z-50 w-44 rounded-md border bg-background shadow-lg py-1">
-                  <p className="px-3 py-1 text-xs text-muted-foreground truncate">
-                    {user?.userName}
-                  </p>
-                  <div className="my-1 border-t" />
-                  <Link
-                    to={ROUTES.account}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
-                  >
-                    <User className="size-4" />
-                    Account
-                  </Link>
-                  <Link
-                    to={ROUTES.account + '?tab=orders'}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
-                  >
-                    <ShoppingCart className="size-4" />
-                    My Order
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
-                  >
-                    <LogOut className="size-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <IconLink to={ROUTES.login} label="Войти">
-              <User className="size-5" />
+          {/* Поиск (десктоп) */}
+          <form
+            onSubmit={handleSearch}
+            className="relative ml-auto hidden w-full max-w-xs sm:block"
+            role="search"
+          >
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="What are you looking for?"
+              aria-label="Поиск товаров"
+              className="bg-muted/50 pr-9"
+            />
+            <button
+              type="submit"
+              aria-label="Найти"
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+            >
+              <Search className="size-4" />
+            </button>
+          </form>
+
+          {/* Иконки */}
+          <div className="ml-auto flex items-center gap-1 sm:ml-0">
+            <IconLink to={ROUTES.wishlist} label="Избранное" count={favCount}>
+              <Heart className="size-5" />
             </IconLink>
-          )}
+            <IconLink to={ROUTES.cart} label="Корзина" count={cartCount}>
+              <ShoppingCart className="size-5" />
+            </IconLink>
+
+            {isAuthenticated ? (
+              <div ref={accountRef} className="relative">
+                <button
+                  onClick={() => setAccountOpen((o) => !o)}
+                  aria-label="Аккаунт"
+                  className={cn(
+                    'hover:bg-accent relative inline-flex size-9 items-center justify-center rounded-md transition-colors',
+                    accountOpen && 'bg-accent'
+                  )}
+                >
+                  <UserCircle className="size-5" />
+                </button>
+
+                {accountOpen && (
+                  <div className="absolute right-0 top-11 z-50 w-44 rounded-md border bg-background shadow-lg py-1">
+                    <p className="px-3 py-1 text-xs text-muted-foreground truncate">
+                      {user?.userName}
+                    </p>
+                    <div className="my-1 border-t" />
+                    <Link
+                      to={ROUTES.account}
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    >
+                      <User className="size-4" />
+                      Account
+                    </Link>
+                    <Link
+                      to={ROUTES.account + '?tab=orders'}
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    >
+                      <ShoppingCart className="size-4" />
+                      My Order
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                    >
+                      <LogOut className="size-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <IconLink to={ROUTES.login} label="Войти">
+                <User className="size-5" />
+              </IconLink>
+            )}
+
+            {/* Гамбургер (только мобильный) */}
+            <button
+              onClick={() => setMobileNavOpen((o) => !o)}
+              aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'}
+              className="hover:bg-accent inline-flex size-9 items-center justify-center rounded-md transition-colors md:hidden"
+            >
+              {mobileNavOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Мобильное меню */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-30 flex flex-col bg-background md:hidden" style={{ top: '57px' }}>
+          {/* Поиск */}
+          <div className="border-b px-4 py-3">
+            <form onSubmit={handleSearch} className="relative" role="search">
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="What are you looking for?"
+                aria-label="Поиск товаров"
+                className="bg-muted/50 pr-9"
+                autoFocus
+              />
+              <button
+                type="submit"
+                aria-label="Найти"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+              >
+                <Search className="size-4" />
+              </button>
+            </form>
+          </div>
+
+          {/* Навигация */}
+          <nav className="flex flex-col divide-y overflow-y-auto">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to + item.label}
+                to={item.to}
+                end={item.end}
+                onClick={() => setMobileNavOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    'px-4 py-4 text-base transition-colors hover:bg-muted',
+                    isActive && 'text-brand font-medium'
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+
+            {isAuthenticated && (
+              <>
+                <Link
+                  to={ROUTES.account}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 text-base hover:bg-muted transition-colors"
+                >
+                  <User className="size-5" />
+                  Account
+                </Link>
+                <Link
+                  to={ROUTES.account + '?tab=orders'}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 text-base hover:bg-muted transition-colors"
+                >
+                  <ShoppingCart className="size-5" />
+                  My Orders
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-4 text-base text-destructive hover:bg-muted transition-colors text-left"
+                >
+                  <LogOut className="size-5" />
+                  Logout
+                </button>
+              </>
+            )}
+          </nav>
+        </div>
+      )}
+    </>
   )
 }
 

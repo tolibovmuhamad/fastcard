@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 
 import { getBrands, getCategories, getProducts } from '@/api'
@@ -40,7 +40,9 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
 
   const [openSections, setOpenSections] = useState({
     category: true,
@@ -51,8 +53,8 @@ export default function ProductsPage() {
   })
 
   useEffect(() => {
-    getCategories().then(setCategories)
-    getBrands().then(setBrands)
+    getCategories().then(setCategories).catch(() => {})
+    getBrands().then(setBrands).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export default function ProductsPage() {
   const loadProducts = useCallback(
     async (pageNum: number, append: boolean) => {
       setLoading(true)
+      setError(null)
       try {
         const data = await getProducts({
           productName: qSearch || undefined,
@@ -79,6 +82,8 @@ export default function ProductsPage() {
           setAllProducts(data)
         }
         setHasMore(data.length === PAGE_SIZE)
+      } catch {
+        setError('Не удалось загрузить товары. Проверьте соединение и попробуйте снова.')
       } finally {
         setLoading(false)
       }
@@ -122,6 +127,100 @@ export default function ProductsPage() {
     setSearchParams(next)
   }
 
+  const filterContent = (
+    <div className="flex flex-col gap-5">
+      <FilterSection title="Category" open={openSections.category} onToggle={() => toggleSection('category')}>
+        <button
+          onClick={() => { setSelectedCategory(undefined); updateSearch({ categoryId: undefined }) }}
+          className={cn('text-sm text-left hover:text-brand transition-colors', !selectedCategory && 'text-brand font-medium')}
+        >
+          All products
+        </button>
+        {categories.slice(0, 5).map((c) => (
+          <button
+            key={c.id}
+            onClick={() => { setSelectedCategory(c.id); updateSearch({ categoryId: String(c.id) }) }}
+            className={cn('text-sm text-left hover:text-brand transition-colors', selectedCategory === c.id && 'text-brand font-medium')}
+          >
+            {c.categoryName}
+          </button>
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Brands" open={openSections.brand} onToggle={() => toggleSection('brand')}>
+        {brands.slice(0, 5).map((b) => (
+          <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedBrand === b.id}
+              onChange={() => {
+                const next = selectedBrand === b.id ? undefined : b.id
+                setSelectedBrand(next)
+                updateSearch({ brandId: next !== undefined ? String(next) : undefined })
+              }}
+              className="accent-brand"
+            />
+            {b.brandName}
+          </label>
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Price range" open={openSections.price} onToggle={() => toggleSection('price')}>
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-1 flex-1">
+            <span className="text-xs text-muted-foreground">Min</span>
+            <input
+              type="number"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
+              min={0}
+            />
+          </div>
+          <div className="flex flex-col gap-1 flex-1">
+            <span className="text-xs text-muted-foreground">Max</span>
+            <input
+              type="number"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
+              min={0}
+            />
+          </div>
+        </div>
+        <button
+          onClick={applyPriceFilter}
+          className="mt-2 w-full rounded border border-brand py-1 text-xs text-brand hover:bg-brand hover:text-white transition-colors"
+        >
+          Apply
+        </button>
+      </FilterSection>
+
+      <FilterSection title="Condition" open={openSections.condition} onToggle={() => toggleSection('condition')}>
+        {CONDITION_OPTIONS.map((c) => (
+          <label key={c} className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="condition" checked={condition === c} onChange={() => setCondition(c)} className="accent-brand" />
+            {c}
+          </label>
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Ratings" open={openSections.rating} onToggle={() => toggleSection('rating')}>
+        {RATING_OPTIONS.map((r) => (
+          <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={minRating === r}
+              onChange={() => setMinRating(minRating === r ? undefined : r)}
+              className="accent-brand"
+            />
+            {'★'.repeat(r)}{'☆'.repeat(5 - r)}
+          </label>
+        ))}
+      </FilterSection>
+    </div>
+  )
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
@@ -138,106 +237,22 @@ export default function ProductsPage() {
       )}
 
       <div className="flex gap-8">
-        {/* ── Sidebar ── */}
+        {/* ── Sidebar (десктоп) ── */}
         <aside className="hidden md:flex flex-col gap-5 w-52 shrink-0">
-          <FilterSection title="Category" open={openSections.category} onToggle={() => toggleSection('category')}>
-            <button
-              onClick={() => { setSelectedCategory(undefined); updateSearch({ categoryId: undefined }) }}
-              className={cn('text-sm text-left hover:text-brand transition-colors', !selectedCategory && 'text-brand font-medium')}
-            >
-              All products
-            </button>
-            {categories.slice(0, 5).map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { setSelectedCategory(c.id); updateSearch({ categoryId: String(c.id) }) }}
-                className={cn('text-sm text-left hover:text-brand transition-colors', selectedCategory === c.id && 'text-brand font-medium')}
-              >
-                {c.categoryName}
-              </button>
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Brands" open={openSections.brand} onToggle={() => toggleSection('brand')}>
-            {brands.slice(0, 5).map((b) => (
-              <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedBrand === b.id}
-                  onChange={() => {
-                    const next = selectedBrand === b.id ? undefined : b.id
-                    setSelectedBrand(next)
-                    updateSearch({ brandId: next !== undefined ? String(next) : undefined })
-                  }}
-                  className="accent-brand"
-                />
-                {b.brandName}
-              </label>
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Price range" open={openSections.price} onToggle={() => toggleSection('price')}>
-            <div className="flex gap-2">
-              <div className="flex flex-col gap-1 flex-1">
-                <span className="text-xs text-muted-foreground">Min</span>
-                <input
-                  type="number"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
-                  min={0}
-                />
-              </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <span className="text-xs text-muted-foreground">Max</span>
-                <input
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
-                  min={0}
-                />
-              </div>
-            </div>
-            <button
-              onClick={applyPriceFilter}
-              className="mt-2 w-full rounded border border-brand py-1 text-xs text-brand hover:bg-brand hover:text-white transition-colors"
-            >
-              Apply
-            </button>
-          </FilterSection>
-
-          <FilterSection title="Condition" open={openSections.condition} onToggle={() => toggleSection('condition')}>
-            {CONDITION_OPTIONS.map((c) => (
-              <label key={c} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="radio" name="condition" checked={condition === c} onChange={() => setCondition(c)} className="accent-brand" />
-                {c}
-              </label>
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Ratings" open={openSections.rating} onToggle={() => toggleSection('rating')}>
-            {RATING_OPTIONS.map((r) => (
-              <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={minRating === r}
-                  onChange={() => setMinRating(minRating === r ? undefined : r)}
-                  className="accent-brand"
-                />
-                {'★'.repeat(r)}{'☆'.repeat(5 - r)}
-              </label>
-            ))}
-          </FilterSection>
+          {filterContent}
         </aside>
 
         {/* ── Grid ── */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6 gap-4">
-            <div className="flex items-center gap-2 md:hidden">
+            {/* Кнопка фильтров (мобильный) */}
+            <button
+              onClick={() => setFilterOpen(true)}
+              className="flex items-center gap-2 md:hidden rounded border border-input px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+            >
               <SlidersHorizontal className="size-4" />
-              <span className="text-sm">Filters</span>
-            </div>
+              Filters
+            </button>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
@@ -249,7 +264,19 @@ export default function ProductsPage() {
             </select>
           </div>
 
-          {loading && products.length === 0 ? (
+          {error ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <span className="text-4xl mb-4">⚠️</span>
+              <p className="text-lg font-medium text-destructive">Ошибка загрузки</p>
+              <p className="text-sm text-muted-foreground mt-1 mb-4">{error}</p>
+              <button
+                onClick={() => loadProducts(1, false)}
+                className="rounded bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+              >
+                Попробовать снова
+              </button>
+            </div>
+          ) : loading && products.length === 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
               {Array.from({ length: 9 }, (_, i) => <ProductSkeleton key={i} />)}
             </div>
@@ -279,6 +306,35 @@ export default function ProductsPage() {
           )}
         </div>
       </div>
+
+      {/* Мобильная панель фильтров */}
+      {filterOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setFilterOpen(false)}
+          />
+          <div className="absolute right-0 top-0 h-full w-72 overflow-y-auto bg-background shadow-xl">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <span className="font-semibold">Filters</span>
+              <button onClick={() => setFilterOpen(false)} aria-label="Закрыть">
+                <X className="size-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              {filterContent}
+            </div>
+            <div className="border-t p-4">
+              <button
+                onClick={() => setFilterOpen(false)}
+                className="w-full rounded bg-brand py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+              >
+                Применить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
