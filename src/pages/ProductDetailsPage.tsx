@@ -212,7 +212,7 @@ export default function ProductDetailsPage() {
           {/* Add to Cart */}
           {inStock && (
             <button
-              onClick={() => product && addItem(product, qty, product.color?.colorName, selectedSize)}
+              onClick={() => product && addItem(product, qty, product.color ?? undefined, selectedSize)}
               className="w-full rounded border border-border py-2 text-sm font-medium hover:bg-muted transition-colors"
             >
               Add to Cart
@@ -243,7 +243,7 @@ export default function ProductDetailsPage() {
               disabled={!inStock}
               onClick={() => {
                 if (product) {
-                  addItem(product, qty, product.color?.colorName, selectedSize)
+                  addItem(product, qty, product.color ?? undefined, selectedSize)
                   navigate(ROUTES.checkout)
                 }
               }}

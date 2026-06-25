@@ -23,18 +23,22 @@ export interface Color {
 export interface Product {
   id: number
   productName: string
-  description: string
-  code: string
+  description?: string
+  code?: string
   price: number
   discountPrice: number | null
   hasDiscount: boolean
   quantity: number
-  weight: string | null
-  size: string | null
-  brand: Brand | null
-  color: Color | null
-  subCategory: SubCategory | null
+  weight?: string | null
+  size?: string | null
+  brand?: string | null
+  color?: string | null
+  subCategoryId?: number | null
+  subCategory?: SubCategory | null
   images: string[]
+  categoryId?: number
+  categoryName?: string
+  productInMyCart?: boolean
 }
 
 export interface ProductsQueryParams {
