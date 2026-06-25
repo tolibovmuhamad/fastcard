@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router'
 
-import AdminLayout from '@/app/AdminLayout'
 import RootLayout from '@/app/RootLayout'
 import ProtectedRoute from '@/routes/ProtectedRoute'
 
@@ -18,11 +17,6 @@ const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const ContactPage = lazy(() => import('@/pages/ContactPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
-
-const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
-const AdminProductsPage = lazy(() => import('@/pages/admin/AdminProductsPage'))
-const AdminCategoriesPage = lazy(() => import('@/pages/admin/AdminCategoriesPage'))
-const AdminOrdersPage = lazy(() => import('@/pages/admin/AdminOrdersPage'))
 
 export const router = createBrowserRouter([
   {
@@ -49,16 +43,6 @@ export const router = createBrowserRouter([
         ],
       },
       { path: '*', Component: NotFoundPage },
-    ],
-  },
-  {
-    path: '/admin',
-    Component: AdminLayout,
-    children: [
-      { index: true, Component: AdminDashboardPage },
-      { path: 'products', Component: AdminProductsPage },
-      { path: 'categories', Component: AdminCategoriesPage },
-      { path: 'orders', Component: AdminOrdersPage },
     ],
   },
 ])

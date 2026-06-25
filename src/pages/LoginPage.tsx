@@ -34,8 +34,7 @@ export default function LoginPage() {
     try {
       await login({ userName, password })
       syncOnLogin().catch(() => {})
-      const { isAdmin } = useAuthStore.getState()
-      navigate(isAdmin ? ROUTES.admin : from, { replace: true })
+      navigate(from, { replace: true })
     } catch {
       // error set in authStore
     }
