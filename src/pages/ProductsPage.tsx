@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 
 import { getBrands, getCategories, getProducts } from '@/api'
@@ -9,17 +10,23 @@ import { ROUTES } from '@/routes/paths'
 import type { Brand, Category, Product } from '@/types/product'
 
 const SORT_OPTIONS = [
-  { value: 'popular', label: 'Popularity' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest' },
+  { value: 'popular', labelKey: 'products.sortPopular' },
+  { value: 'price_asc', labelKey: 'products.sortPriceAsc' },
+  { value: 'price_desc', labelKey: 'products.sortPriceDesc' },
+  { value: 'newest', labelKey: 'products.sortNewest' },
 ]
 
-const CONDITION_OPTIONS = ['Any', 'Brand new', 'Refurbished', 'Old items']
+const CONDITION_OPTIONS = [
+  { value: 'Any', labelKey: 'products.conditionAny' },
+  { value: 'Brand new', labelKey: 'products.conditionNew' },
+  { value: 'Refurbished', labelKey: 'products.conditionRefurbished' },
+  { value: 'Old items', labelKey: 'products.conditionOld' },
+]
 const RATING_OPTIONS = [5, 4, 3, 2]
 const PAGE_SIZE = 9
 
 export default function ProductsPage() {
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const qSearch = searchParams.get('q') ?? ''
@@ -83,7 +90,8 @@ export default function ProductsPage() {
         }
         setHasMore(data.length === PAGE_SIZE)
       } catch {
-        setError('Не удалось загрузить товары. Проверьте соединение и попробуйте снова.')
+        // Маркер ошибки; человекочитаемый текст рендерится через t() ниже.
+        setError('load-failed')
       } finally {
         setLoading(false)
       }
@@ -129,12 +137,12 @@ export default function ProductsPage() {
 
   const filterContent = (
     <div className="flex flex-col gap-5">
-      <FilterSection title="Category" open={openSections.category} onToggle={() => toggleSection('category')}>
+      <FilterSection title={t('products.category')} open={openSections.category} onToggle={() => toggleSection('category')}>
         <button
           onClick={() => { setSelectedCategory(undefined); updateSearch({ categoryId: undefined }) }}
           className={cn('text-sm text-left hover:text-brand transition-colors', !selectedCategory && 'text-brand font-medium')}
         >
-          All products
+          {t('products.allProducts')}
         </button>
         {categories.slice(0, 5).map((c) => (
           <button
@@ -147,7 +155,7 @@ export default function ProductsPage() {
         ))}
       </FilterSection>
 
-      <FilterSection title="Brands" open={openSections.brand} onToggle={() => toggleSection('brand')}>
+      <FilterSection title={t('products.brands')} open={openSections.brand} onToggle={() => toggleSection('brand')}>
         {brands.slice(0, 5).map((b) => (
           <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer">
             <input
@@ -165,10 +173,10 @@ export default function ProductsPage() {
         ))}
       </FilterSection>
 
-      <FilterSection title="Price range" open={openSections.price} onToggle={() => toggleSection('price')}>
+      <FilterSection title={t('products.priceRange')} open={openSections.price} onToggle={() => toggleSection('price')}>
         <div className="flex gap-2">
           <div className="flex flex-col gap-1 flex-1">
-            <span className="text-xs text-muted-foreground">Min</span>
+            <span className="text-xs text-muted-foreground">{t('products.min')}</span>
             <input
               type="number"
               value={minPrice}
@@ -178,7 +186,7 @@ export default function ProductsPage() {
             />
           </div>
           <div className="flex flex-col gap-1 flex-1">
-            <span className="text-xs text-muted-foreground">Max</span>
+            <span className="text-xs text-muted-foreground">{t('products.max')}</span>
             <input
               type="number"
               value={maxPrice}
@@ -192,20 +200,20 @@ export default function ProductsPage() {
           onClick={applyPriceFilter}
           className="mt-2 w-full rounded border border-brand py-1 text-xs text-brand hover:bg-brand hover:text-white transition-colors"
         >
-          Apply
+          {t('common.apply')}
         </button>
       </FilterSection>
 
-      <FilterSection title="Condition" open={openSections.condition} onToggle={() => toggleSection('condition')}>
+      <FilterSection title={t('products.condition')} open={openSections.condition} onToggle={() => toggleSection('condition')}>
         {CONDITION_OPTIONS.map((c) => (
-          <label key={c} className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="radio" name="condition" checked={condition === c} onChange={() => setCondition(c)} className="accent-brand" />
-            {c}
+          <label key={c.value} className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="condition" checked={condition === c.value} onChange={() => setCondition(c.value)} className="accent-brand" />
+            {t(c.labelKey)}
           </label>
         ))}
       </FilterSection>
 
-      <FilterSection title="Ratings" open={openSections.rating} onToggle={() => toggleSection('rating')}>
+      <FilterSection title={t('products.ratings')} open={openSections.rating} onToggle={() => toggleSection('rating')}>
         {RATING_OPTIONS.map((r) => (
           <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
             <input
@@ -225,14 +233,18 @@ export default function ProductsPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="flex gap-2 text-sm text-muted-foreground mb-6">
-        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">Home</Link>
+        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">{t('nav.home')}</Link>
         <span>/</span>
-        <span className="text-foreground">Explore Our Products</span>
+        <span className="text-foreground">{t('products.breadcrumb')}</span>
       </nav>
 
       {qSearch && (
         <p className="mb-4 text-sm text-muted-foreground">
-          Результаты поиска: <strong className="text-foreground">«{qSearch}»</strong>
+          <Trans
+            i18nKey="products.searchResults"
+            values={{ query: qSearch }}
+            components={{ strong: <strong className="text-foreground" /> }}
+          />
         </p>
       )}
 
@@ -251,7 +263,7 @@ export default function ProductsPage() {
               className="flex items-center gap-2 md:hidden rounded border border-input px-3 py-1.5 text-sm hover:bg-muted transition-colors"
             >
               <SlidersHorizontal className="size-4" />
-              Filters
+              {t('products.filters')}
             </button>
             <select
               value={sort}
@@ -259,7 +271,7 @@ export default function ProductsPage() {
               className="ml-auto rounded border border-input bg-background px-3 py-1.5 text-sm"
             >
               {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -267,13 +279,13 @@ export default function ProductsPage() {
           {error ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <span className="text-4xl mb-4">⚠️</span>
-              <p className="text-lg font-medium text-destructive">Ошибка загрузки</p>
-              <p className="text-sm text-muted-foreground mt-1 mb-4">{error}</p>
+              <p className="text-lg font-medium text-destructive">{t('products.errorTitle')}</p>
+              <p className="text-sm text-muted-foreground mt-1 mb-4">{t('products.errorDesc')}</p>
               <button
                 onClick={() => loadProducts(1, false)}
                 className="rounded bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
-                Попробовать снова
+                {t('common.retry')}
               </button>
             </div>
           ) : loading && products.length === 0 ? (
@@ -283,8 +295,8 @@ export default function ProductsPage() {
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
               <span className="text-4xl mb-4">🔍</span>
-              <p className="text-lg font-medium">Ничего не найдено</p>
-              <p className="text-sm mt-1">Попробуйте изменить фильтры или поисковый запрос</p>
+              <p className="text-lg font-medium">{t('products.emptyTitle')}</p>
+              <p className="text-sm mt-1">{t('products.emptyDesc')}</p>
             </div>
           ) : (
             <>
@@ -298,7 +310,7 @@ export default function ProductsPage() {
                     disabled={loading}
                     className="rounded bg-brand px-12 py-3 text-sm font-medium text-white hover:bg-brand/90 disabled:opacity-60 transition-colors"
                   >
-                    {loading ? 'Загрузка...' : 'More Products'}
+                    {loading ? t('common.loading') : t('common.moreProducts')}
                   </button>
                 </div>
               )}
@@ -316,8 +328,8 @@ export default function ProductsPage() {
           />
           <div className="absolute right-0 top-0 h-full w-72 overflow-y-auto bg-background shadow-xl">
             <div className="flex items-center justify-between border-b px-4 py-3">
-              <span className="font-semibold">Filters</span>
-              <button onClick={() => setFilterOpen(false)} aria-label="Закрыть">
+              <span className="font-semibold">{t('products.filters')}</span>
+              <button onClick={() => setFilterOpen(false)} aria-label={t('header.closeMenu')}>
                 <X className="size-5" />
               </button>
             </div>
@@ -329,7 +341,7 @@ export default function ProductsPage() {
                 onClick={() => setFilterOpen(false)}
                 className="w-full rounded bg-brand py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
-                Применить
+                {t('common.apply')}
               </button>
             </div>
           </div>

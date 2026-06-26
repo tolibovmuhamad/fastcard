@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
 import { Send } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { ROUTES } from '@/routes/paths'
@@ -12,19 +13,19 @@ import {
 
 // Колонка «Account» — существующие маршруты витрины.
 const ACCOUNT_LINKS = [
-  { to: ROUTES.account, label: 'My Account' },
-  { to: ROUTES.cart, label: 'Cart' },
-  { to: ROUTES.wishlist, label: 'Wishlist' },
-  { to: ROUTES.products, label: 'Shop' }, // Shop ведёт в каталог (SOURCES_NOTES §6)
+  { to: ROUTES.account, labelKey: 'footer.myAccount' },
+  { to: ROUTES.cart, labelKey: 'footer.cart' },
+  { to: ROUTES.wishlist, labelKey: 'footer.wishlist' },
+  { to: ROUTES.products, labelKey: 'footer.shop' }, // Shop ведёт в каталог (SOURCES_NOTES §6)
 ]
 
 // Колонка «Quick Link». Privacy/Terms/FAQ — статические страницы-заглушки
 // (решение Этапа 0); отдельных маршрутов пока нет → временно href="#".
-const QUICK_LINKS: Array<{ label: string; to?: string; href?: string }> = [
-  { href: '#', label: 'Privacy Policy' },
-  { href: '#', label: 'Terms Of Use' },
-  { href: '#', label: 'FAQ' },
-  { to: ROUTES.contact, label: 'Contact' },
+const QUICK_LINKS: Array<{ labelKey: string; to?: string; href?: string }> = [
+  { href: '#', labelKey: 'footer.privacy' },
+  { href: '#', labelKey: 'footer.terms' },
+  { href: '#', labelKey: 'footer.faq' },
+  { to: ROUTES.contact, labelKey: 'footer.contact' },
 ]
 
 const SOCIAL = [
@@ -35,6 +36,8 @@ const SOCIAL = [
 ]
 
 export default function Footer() {
+  const { t } = useTranslation()
+
   // Подписка на рассылку — вне рамок (нет email-бэкенда, ТЗ §14): форма-заглушка.
   function handleSubscribe(event: FormEvent) {
     event.preventDefault()
@@ -46,8 +49,8 @@ export default function Footer() {
         {/* Exclusive + подписка */}
         <div className="space-y-4">
           <p className="text-xl font-bold text-white">Exclusive</p>
-          <p className="font-medium text-white">Subscribe</p>
-          <p className="text-sm">Get 10% off your first order</p>
+          <p className="font-medium text-white">{t('footer.subscribe')}</p>
+          <p className="text-sm">{t('footer.subscribeDesc')}</p>
           <form
             onSubmit={handleSubscribe}
             className="flex items-center rounded-md border border-neutral-500"
@@ -55,13 +58,13 @@ export default function Footer() {
             <input
               type="email"
               required
-              placeholder="Enter your email"
-              aria-label="Email для подписки"
+              placeholder={t('footer.emailPlaceholder')}
+              aria-label={t('footer.emailPlaceholder')}
               className="w-full bg-transparent px-3 py-2 text-sm outline-none placeholder:text-neutral-400"
             />
             <button
               type="submit"
-              aria-label="Подписаться"
+              aria-label={t('footer.subscribeAction')}
               className="px-3 text-white"
             >
               <Send className="size-5" />
@@ -71,7 +74,7 @@ export default function Footer() {
 
         {/* Support */}
         <div className="space-y-4">
-          <p className="font-medium text-white">Support</p>
+          <p className="font-medium text-white">{t('footer.support')}</p>
           <address className="space-y-2 text-sm not-italic">
             <p>Dushanbe, Tajikistan.</p>
             <p>support@fastcart.tj</p>
@@ -80,13 +83,13 @@ export default function Footer() {
         </div>
 
         {/* Account */}
-        <nav className="space-y-4" aria-label="Account">
-          <p className="font-medium text-white">Account</p>
+        <nav className="space-y-4" aria-label={t('footer.account')}>
+          <p className="font-medium text-white">{t('footer.account')}</p>
           <ul className="space-y-2 text-sm">
             {ACCOUNT_LINKS.map((item) => (
-              <li key={item.label}>
+              <li key={item.labelKey}>
                 <Link to={item.to} className="hover:text-white">
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               </li>
             ))}
@@ -94,18 +97,18 @@ export default function Footer() {
         </nav>
 
         {/* Quick Link */}
-        <nav className="space-y-4" aria-label="Quick Link">
-          <p className="font-medium text-white">Quick Link</p>
+        <nav className="space-y-4" aria-label={t('footer.quickLink')}>
+          <p className="font-medium text-white">{t('footer.quickLink')}</p>
           <ul className="space-y-2 text-sm">
             {QUICK_LINKS.map((item) => (
-              <li key={item.label}>
+              <li key={item.labelKey}>
                 {item.to ? (
                   <Link to={item.to} className="hover:text-white">
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 ) : (
                   <a href={item.href} className="hover:text-white">
-                    {item.label}
+                    {t(item.labelKey)}
                   </a>
                 )}
               </li>
@@ -116,7 +119,7 @@ export default function Footer() {
 
       <div className="border-t border-neutral-800">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-sm text-neutral-500 sm:flex-row">
-          <p>© {new Date().getFullYear()} fastcart. All rights reserved.</p>
+          <p>{t('footer.rights', { year: new Date().getFullYear() })}</p>
           <ul className="flex items-center gap-5">
             {SOCIAL.map(({ label, Icon }) => (
               <li key={label}>

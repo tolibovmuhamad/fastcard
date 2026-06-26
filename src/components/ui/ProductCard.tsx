@@ -1,4 +1,5 @@
 import { Eye, Heart, ShoppingCart, Star } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { cn } from '@/lib/utils'
@@ -13,6 +14,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, className }: ProductCardProps) {
+  const { t } = useTranslation()
   const addItem = useCartStore((s) => s.addItem)
   const toggleItem = useFavoritesStore((s) => s.toggleItem)
   const isInFavorites = useFavoritesStore((s) => s.isInFavorites)
@@ -37,7 +39,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-              Нет фото
+              {t('common.noImage')}
             </div>
           )}
         </Link>
@@ -50,7 +52,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         )}
         {product.quantity === 0 && (
           <span className="absolute top-2 left-2 rounded bg-foreground px-2 py-0.5 text-xs font-medium text-background">
-            Out of Stock
+            {t('common.outOfStock')}
           </span>
         )}
 
@@ -58,7 +60,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={() => toggleItem(product)}
-            aria-label={favorited ? 'Убрать из избранного' : 'Добавить в избранное'}
+            aria-label={favorited ? t('product.removeFromWishlist') : t('product.addToWishlist')}
             className={cn(
               'flex size-8 items-center justify-center rounded-full bg-white shadow transition-colors',
               favorited ? 'text-brand' : 'hover:bg-brand hover:text-white'
@@ -68,7 +70,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           </button>
           <Link
             to={ROUTES.productDetails(product.id)}
-            aria-label="Быстрый просмотр"
+            aria-label={t('product.quickView')}
             className="flex size-8 items-center justify-center rounded-full bg-white shadow hover:bg-brand hover:text-white transition-colors"
           >
             <Eye className="size-4" />
@@ -79,11 +81,11 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         {product.quantity > 0 && (
           <button
             onClick={() => addItem(product, 1)}
-            aria-label="Добавить в корзину"
+            aria-label={t('common.addToCart')}
             className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 bg-foreground py-2 text-sm font-medium text-background opacity-0 transition-opacity group-hover:opacity-100"
           >
             <ShoppingCart className="size-4" />
-            Add To Cart
+            {t('common.addToCart')}
           </button>
         )}
       </div>
@@ -121,6 +123,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 }
 
 function StarRating({ rating, reviewCount }: { rating: number; reviewCount: number }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1">
       {Array.from({ length: 5 }, (_, i) => (
@@ -132,7 +135,7 @@ function StarRating({ rating, reviewCount }: { rating: number; reviewCount: numb
           )}
         />
       ))}
-      <span className="text-xs text-muted-foreground">({reviewCount})</span>
+      <span className="text-xs text-muted-foreground">{t('product.reviews', { count: reviewCount })}</span>
     </div>
   )
 }

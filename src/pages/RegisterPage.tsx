@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ const GOOGLE_ICON = (
 )
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { register, isLoading, error, isAuthenticated } = useAuthStore()
   const [form, setForm] = useState({
@@ -45,7 +47,7 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (form.password !== form.confirmPassword) {
-      setFieldError('Пароли не совпадают')
+      setFieldError(t('register.passwordsMismatch'))
       return
     }
     try {
@@ -67,14 +69,14 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
       <div className="w-full max-w-[430px]">
-        <h1 className="text-4xl font-medium">Create an account</h1>
-        <p className="mt-3 text-muted-foreground">Enter your details below</p>
+        <h1 className="text-4xl font-medium">{t('register.title')}</h1>
+        <p className="mt-3 text-muted-foreground">{t('register.subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
           <Input
             value={form.userName}
             onChange={handleChange('userName')}
-            placeholder="Name"
+            placeholder={t('register.namePlaceholder')}
             required
             autoComplete="username"
           />
@@ -82,7 +84,7 @@ export default function RegisterPage() {
             type="email"
             value={form.email}
             onChange={handleChange('email')}
-            placeholder="Email"
+            placeholder={t('register.emailPlaceholder')}
             required
             autoComplete="email"
           />
@@ -90,7 +92,7 @@ export default function RegisterPage() {
             type="tel"
             value={form.phoneNumber}
             onChange={handleChange('phoneNumber')}
-            placeholder="Phone number"
+            placeholder={t('register.phonePlaceholder')}
             required
             autoComplete="tel"
           />
@@ -98,7 +100,7 @@ export default function RegisterPage() {
             type="password"
             value={form.password}
             onChange={handleChange('password')}
-            placeholder="Password"
+            placeholder={t('register.passwordPlaceholder')}
             required
             autoComplete="new-password"
           />
@@ -106,7 +108,7 @@ export default function RegisterPage() {
             type="password"
             value={form.confirmPassword}
             onChange={handleChange('confirmPassword')}
-            placeholder="Confirm Password"
+            placeholder={t('register.confirmPasswordPlaceholder')}
             required
             autoComplete="new-password"
           />
@@ -118,7 +120,7 @@ export default function RegisterPage() {
             disabled={isLoading}
             className="w-full bg-brand text-white hover:bg-brand/90"
           >
-            {isLoading ? 'Creating...' : 'Create Account'}
+            {isLoading ? t('register.creating') : t('register.createAccount')}
           </Button>
 
           <Button
@@ -126,20 +128,20 @@ export default function RegisterPage() {
             variant="outline"
             disabled
             className="w-full"
-            title="OAuth недоступен в API"
+            title={t('register.oauthUnavailable')}
           >
             {GOOGLE_ICON}
-            Sign up with Google
+            {t('register.signUpGoogle')}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          {t('register.haveAccount')}{' '}
           <Link
             to={ROUTES.login}
             className="font-medium text-foreground underline underline-offset-4"
           >
-            Log in
+            {t('register.logIn')}
           </Link>
         </p>
       </div>

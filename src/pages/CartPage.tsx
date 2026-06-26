@@ -1,4 +1,5 @@
 import { Minus, Plus, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 
 import { ROUTES } from '@/routes/paths'
@@ -11,6 +12,7 @@ import {
 } from '@/store/cartStore'
 
 export default function CartPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
   const { items, removeItem, updateQuantity, clearCart } = useCartStore()
@@ -30,13 +32,13 @@ export default function CartPage() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-16 text-center">
         <p className="text-4xl mb-4">🛒</p>
-        <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
-        <p className="text-muted-foreground mb-6">Add some products to get started.</p>
+        <h1 className="text-2xl font-semibold mb-2">{t('cart.emptyTitle')}</h1>
+        <p className="text-muted-foreground mb-6">{t('cart.emptyDesc')}</p>
         <Link
           to={ROUTES.products}
           className="inline-block rounded bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
         >
-          Return To Shop
+          {t('cart.returnToShop')}
         </Link>
       </div>
     )
@@ -46,19 +48,19 @@ export default function CartPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="flex gap-2 text-sm text-muted-foreground mb-8">
-        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">Home</Link>
+        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">{t('nav.home')}</Link>
         <span>/</span>
-        <span className="text-foreground">Cart</span>
+        <span className="text-foreground">{t('cart.title')}</span>
       </nav>
 
       {/* Cart table */}
       <div className="rounded-md border border-border overflow-hidden">
         {/* Header (desktop) */}
         <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 bg-muted/30 px-4 py-3 text-sm font-medium">
-          <span>Product</span>
-          <span>Price</span>
-          <span>Quantity</span>
-          <span>Subtotal</span>
+          <span>{t('cart.product')}</span>
+          <span>{t('cart.price')}</span>
+          <span>{t('cart.quantity')}</span>
+          <span>{t('common.subtotal')}</span>
           <span />
         </div>
 
@@ -99,18 +101,18 @@ export default function CartPage() {
                     </Link>
                     {item.selectedColor && (
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Color: {item.selectedColor}
+                        {t('cart.color')}: {item.selectedColor}
                       </p>
                     )}
                     {item.selectedSize && (
-                      <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>
+                      <p className="text-xs text-muted-foreground">{t('cart.size')}: {item.selectedSize}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Price */}
                 <span className="text-sm">
-                  <span className="sm:hidden text-muted-foreground mr-1">Price:</span>
+                  <span className="sm:hidden text-muted-foreground mr-1">{t('cart.price')}:</span>
                   ${price.toFixed(2)}
                 </span>
 
@@ -118,7 +120,7 @@ export default function CartPage() {
                 <div className="flex items-center gap-0 border border-border rounded overflow-hidden w-fit">
                   <button
                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                    aria-label="Уменьшить"
+                    aria-label={t('productDetails.decrease')}
                     className="px-2 py-1 hover:bg-muted transition-colors"
                   >
                     <Minus className="size-3" />
@@ -126,7 +128,7 @@ export default function CartPage() {
                   <span className="w-10 text-center text-sm">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                    aria-label="Увеличить"
+                    aria-label={t('productDetails.increase')}
                     className="px-2 py-1 hover:bg-muted transition-colors"
                   >
                     <Plus className="size-3" />
@@ -135,14 +137,14 @@ export default function CartPage() {
 
                 {/* Subtotal */}
                 <span className="text-sm font-semibold">
-                  <span className="sm:hidden text-muted-foreground font-normal mr-1">Subtotal:</span>
+                  <span className="sm:hidden text-muted-foreground font-normal mr-1">{t('common.subtotal')}:</span>
                   ${itemSubtotal.toFixed(2)}
                 </span>
 
                 {/* Remove */}
                 <button
                   onClick={() => removeItem(item.product.id)}
-                  aria-label="Удалить"
+                  aria-label={t('common.remove')}
                   className="text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <Trash2 className="size-4" />
@@ -159,13 +161,13 @@ export default function CartPage() {
           to={ROUTES.products}
           className="rounded border border-border px-5 py-2 text-sm font-medium hover:bg-muted transition-colors"
         >
-          Return To Shop
+          {t('cart.returnToShop')}
         </Link>
         <button
           onClick={clearCart}
           className="rounded border border-destructive px-5 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
         >
-          Remove all
+          {t('cart.removeAll')}
         </button>
       </div>
 
@@ -175,35 +177,35 @@ export default function CartPage() {
         <div className="flex gap-3">
           <input
             type="text"
-            placeholder="Coupon Code"
+            placeholder={t('common.couponCode')}
             className="flex-1 rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand/50"
           />
           <button className="rounded bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors">
-            Apply Coupon
+            {t('cart.applyCoupon')}
           </button>
         </div>
 
         {/* Cart Total */}
         <div className="rounded-md border border-border p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Cart Total</h2>
+          <h2 className="text-lg font-semibold">{t('cart.cartTotal')}</h2>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span>Subtotal:</span>
+              <span>{t('common.subtotal')}:</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-3">
-              <span>Shipping:</span>
+              <span>{t('common.shipping')}:</span>
               <span className={shipping === 0 ? 'text-green-600' : ''}>
-                {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                {shipping === 0 ? t('common.free') : `$${shipping.toFixed(2)}`}
               </span>
             </div>
             {shipping > 0 && (
               <p className="text-xs text-muted-foreground">
-                Free shipping on orders over ${SHIPPING_THRESHOLD}
+                {t('cart.freeShippingNote', { amount: SHIPPING_THRESHOLD })}
               </p>
             )}
             <div className="flex justify-between border-t border-border pt-3 font-semibold text-base">
-              <span>Total:</span>
+              <span>{t('common.total')}:</span>
               <span>${total.toFixed(2)}</span>
             </div>
           </div>
@@ -211,7 +213,7 @@ export default function CartPage() {
             onClick={handleCheckout}
             className="w-full rounded bg-brand py-2.5 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
           >
-            Proceed to checkout
+            {t('cart.proceedToCheckout')}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 
 import { ROUTES } from '@/routes/paths'
@@ -8,8 +9,8 @@ import type { BillingInfo } from '@/types/cart'
 
 const BILLING_STORAGE_KEY = 'fastcart-billing'
 const PAYMENT_METHODS = [
-  { id: 'bank', label: 'Bank (bKash / Visa / MasterCard)' },
-  { id: 'cash', label: 'Cash on delivery' },
+  { id: 'bank', labelKey: 'checkout.paymentBankLabel' },
+  { id: 'cash', labelKey: 'checkout.paymentCashLabel' },
 ]
 
 function loadSavedBilling(): Partial<BillingInfo> {
@@ -22,6 +23,7 @@ function loadSavedBilling(): Partial<BillingInfo> {
 }
 
 export default function CheckoutPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { items, clearCart } = useCartStore()
   const subtotal = useCartStore(selectTotalPrice)
@@ -49,12 +51,13 @@ export default function CheckoutPage() {
 
   function validate(): boolean {
     const errs: Record<string, string> = {}
-    if (!firstName.trim()) errs.firstName = 'Required'
-    if (!lastName.trim()) errs.lastName = 'Required'
-    if (!streetAddress.trim()) errs.streetAddress = 'Required'
-    if (!city.trim()) errs.city = 'Required'
-    if (!phone.trim()) errs.phone = 'Required'
-    if (!email.trim()) errs.email = 'Required'
+    const required = t('checkout.required')
+    if (!firstName.trim()) errs.firstName = required
+    if (!lastName.trim()) errs.lastName = required
+    if (!streetAddress.trim()) errs.streetAddress = required
+    if (!city.trim()) errs.city = required
+    if (!phone.trim()) errs.phone = required
+    if (!email.trim()) errs.email = required
     setFieldErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -87,82 +90,82 @@ export default function CheckoutPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="flex gap-2 text-sm text-muted-foreground mb-8">
-        <Link to={ROUTES.products} className="hover:text-foreground transition-colors">Products</Link>
+        <Link to={ROUTES.products} className="hover:text-foreground transition-colors">{t('products.breadcrumb')}</Link>
         <span>/</span>
-        <Link to={ROUTES.cart} className="hover:text-foreground transition-colors">View Cart</Link>
+        <Link to={ROUTES.cart} className="hover:text-foreground transition-colors">{t('checkout.viewCart')}</Link>
         <span>/</span>
-        <span className="text-foreground">CheckOut</span>
+        <span className="text-foreground">{t('checkout.checkout')}</span>
       </nav>
 
       <form onSubmit={handlePlaceOrder} noValidate>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10">
           {/* Left: Billing Details */}
           <section>
-            <h2 className="text-2xl font-medium mb-6">Billing Details</h2>
+            <h2 className="text-2xl font-medium mb-6">{t('checkout.billingDetails')}</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <Field label="First Name *" error={fieldErrors.firstName}>
+              <Field label={t('checkout.firstName')} error={fieldErrors.firstName}>
                 <input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={inputCls(!!fieldErrors.firstName)}
-                  placeholder="First name"
+                  placeholder={t('checkout.firstNamePlaceholder')}
                 />
               </Field>
 
-              <Field label="Last Name *" error={fieldErrors.lastName}>
+              <Field label={t('checkout.lastName')} error={fieldErrors.lastName}>
                 <input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className={inputCls(!!fieldErrors.lastName)}
-                  placeholder="Last name"
+                  placeholder={t('checkout.lastNamePlaceholder')}
                 />
               </Field>
 
-              <Field label="Street Address *" error={fieldErrors.streetAddress} className="sm:col-span-2">
+              <Field label={t('checkout.streetAddress')} error={fieldErrors.streetAddress} className="sm:col-span-2">
                 <input
                   value={streetAddress}
                   onChange={(e) => setStreetAddress(e.target.value)}
                   className={inputCls(!!fieldErrors.streetAddress)}
-                  placeholder="House number and street name"
+                  placeholder={t('checkout.streetPlaceholder')}
                 />
               </Field>
 
-              <Field label="Apartment, floor, etc. (optional)" className="sm:col-span-2">
+              <Field label={t('checkout.apartment')} className="sm:col-span-2">
                 <input
                   value={apartment}
                   onChange={(e) => setApartment(e.target.value)}
                   className={inputCls(false)}
-                  placeholder="Apartment or floor"
+                  placeholder={t('checkout.apartmentPlaceholder')}
                 />
               </Field>
 
-              <Field label="Town / City *" error={fieldErrors.city}>
+              <Field label={t('checkout.townCity')} error={fieldErrors.city}>
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className={inputCls(!!fieldErrors.city)}
-                  placeholder="City"
+                  placeholder={t('checkout.cityPlaceholder')}
                 />
               </Field>
 
-              <Field label="Phone Number *" error={fieldErrors.phone}>
+              <Field label={t('checkout.phone')} error={fieldErrors.phone}>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className={inputCls(!!fieldErrors.phone)}
-                  placeholder="+1 234 567 8900"
+                  placeholder={t('checkout.phonePlaceholder')}
                 />
               </Field>
 
-              <Field label="Email Address *" error={fieldErrors.email} className="sm:col-span-2">
+              <Field label={t('checkout.email')} error={fieldErrors.email} className="sm:col-span-2">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputCls(!!fieldErrors.email)}
-                  placeholder="you@example.com"
+                  placeholder={t('checkout.emailPlaceholder')}
                 />
               </Field>
             </div>
@@ -174,13 +177,13 @@ export default function CheckoutPage() {
                 onChange={(e) => setSaveInfo(e.target.checked)}
                 className="accent-brand"
               />
-              Save this information for faster check-out next time
+              {t('checkout.saveInfo')}
             </label>
           </section>
 
           {/* Right: Order Summary */}
           <aside>
-            <h2 className="text-2xl font-medium mb-6">Order Summary</h2>
+            <h2 className="text-2xl font-medium mb-6">{t('checkout.orderSummary')}</h2>
 
             {/* Items */}
             <div className="space-y-3 mb-4">
@@ -214,24 +217,24 @@ export default function CheckoutPage() {
 
             <div className="border-t border-border pt-4 space-y-3 text-sm">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
+                <span>{t('common.subtotal')}:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-3">
-                <span>Shipping:</span>
+                <span>{t('common.shipping')}:</span>
                 <span className={shipping === 0 ? 'text-green-600' : ''}>
-                  {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? t('common.free') : `$${shipping.toFixed(2)}`}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border pt-3 font-semibold text-base">
-                <span>Total:</span>
+                <span>{t('common.total')}:</span>
                 <span>${total.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Payment */}
             <div className="mt-6 space-y-2">
-              <p className="text-sm font-medium">Payment Method</p>
+              <p className="text-sm font-medium">{t('checkout.paymentMethod')}</p>
               {PAYMENT_METHODS.map((pm) => (
                 <label key={pm.id} className="flex items-center gap-2 text-sm cursor-pointer">
                   <input
@@ -242,7 +245,7 @@ export default function CheckoutPage() {
                     onChange={() => setPaymentMethod(pm.id)}
                     className="accent-brand"
                   />
-                  {pm.label}
+                  {t(pm.labelKey)}
                 </label>
               ))}
             </div>
@@ -251,14 +254,14 @@ export default function CheckoutPage() {
             <div className="mt-5 flex gap-2">
               <input
                 type="text"
-                placeholder="Coupon Code"
+                placeholder={t('common.couponCode')}
                 className="flex-1 rounded border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand/50"
               />
               <button
                 type="button"
                 className="rounded bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
-                Apply
+                {t('common.apply')}
               </button>
             </div>
 
@@ -267,7 +270,7 @@ export default function CheckoutPage() {
               disabled={placing}
               className="mt-5 w-full rounded bg-brand py-3 text-sm font-medium text-white hover:bg-brand/90 disabled:opacity-60 transition-colors"
             >
-              {placing ? 'Placing order...' : 'Place Order'}
+              {placing ? t('checkout.placingOrder') : t('checkout.placeOrder')}
             </button>
           </aside>
         </div>

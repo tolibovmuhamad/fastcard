@@ -74,3 +74,11 @@
 - [x] 7.4 Страница 404 (6.12)
 - [x] 7.5 Контакты (6.10) и О магазине (6.11)
 - [x] 7.6 Финальная отладка и мелкие правки
+
+## Этап 8. Интернационализация (i18n) и тема оформления
+
+- [x] 8.1 i18next + react-i18next + автоопределение языка (`src/i18n/index.ts`): 3 языка — **en/ru/tj** (таджикский кириллицей), выбор хранится в localStorage `fastcart-lang`, fallback `en`
+- [x] 8.2 Локали `src/i18n/locales/{en,ru,tj}.json` (~280 ключей): chrome (Header/Footer/ProductCard/PageLoader) + все 13 страниц; плюрализация (ru: one/few/many), статусы заказа `order.status.*`
+- [x] 8.3 Тёмная/светлая тема (`src/store/themeStore.ts`, Zustand+persist `fastcart-theme`): класс `.dark` на `<html>` (CSS-переменные уже были в `index.css`), системное предпочтение на первом визите, `initTheme()` в `main.tsx` (без «мигания»)
+- [x] 8.4 Переключатели `LanguageSwitcher` (глобус EN/RU/TJ) и `ThemeToggle` (солнце/луна) в Header — десктоп и мобильное меню
+- [x] 8.5 Перевод всех экранов через `t()` + `<Trans>` для разметки; `tsc -b` / `npm run build` чистые, паритет ключей по всем трём локалям проверен скриптом

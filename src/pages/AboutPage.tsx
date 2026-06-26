@@ -1,51 +1,35 @@
 import { HeadphonesIcon, RotateCcw, ShieldCheck, Truck } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 
 const STATS = [
-  { value: '10.5k', label: 'Sellers active on our site' },
-  { value: '33k', label: 'Monthly product sales' },
-  { value: '45.5k', label: 'Customers active on our site' },
-  { value: '25k', label: 'Annual gross sale on our site' },
+  { value: '10.5k', labelKey: 'about.statSellers' },
+  { value: '33k', labelKey: 'about.statSales' },
+  { value: '45.5k', labelKey: 'about.statCustomers' },
+  { value: '25k', labelKey: 'about.statGrossSale' },
 ]
 
 const VALUES = [
-  {
-    Icon: Truck,
-    title: 'FREE AND FAST DELIVERY',
-    description: 'Free delivery for all orders over $140',
-  },
-  {
-    Icon: HeadphonesIcon,
-    title: '24/7 CUSTOMER SERVICE',
-    description: 'Friendly 24/7 customer support',
-  },
-  {
-    Icon: ShieldCheck,
-    title: 'MONEY BACK GUARANTEE',
-    description: 'We return money within 30 days',
-  },
-  {
-    Icon: RotateCcw,
-    title: 'EASY RETURNS',
-    description: 'No-hassle returns within 14 days',
-  },
+  { Icon: Truck, titleKey: 'about.valueDeliveryTitle', descKey: 'about.valueDeliveryDesc' },
+  { Icon: HeadphonesIcon, titleKey: 'about.valueSupportTitle', descKey: 'about.valueSupportDesc' },
+  { Icon: ShieldCheck, titleKey: 'about.valueGuaranteeTitle', descKey: 'about.valueGuaranteeDesc' },
+  { Icon: RotateCcw, titleKey: 'about.valueReturnsTitle', descKey: 'about.valueReturnsDesc' },
 ]
 
 export default function AboutPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-20">
 
       {/* ── Hero ── */}
       <section className="grid gap-12 md:grid-cols-2 items-center">
         <div className="space-y-6">
-          <h1 className="text-4xl font-bold leading-tight">Our Story</h1>
+          <h1 className="text-4xl font-bold leading-tight">{t('about.ourStory')}</h1>
           <p className="text-muted-foreground leading-relaxed">
-            Launched in 2022, <strong>fastcart</strong> is the premier online shopping destination
-            in Tajikistan. We connect thousands of sellers with millions of buyers to create a
-            marketplace that is safe, easy and enjoyable for everyone.
+            <Trans i18nKey="about.story1" components={{ brand: <strong /> }} />
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Our goal is to provide the best experience for both buyers and sellers: from smooth
-            product discovery and secure checkout to fast delivery and excellent customer support.
+            {t('about.story2')}
           </p>
         </div>
 
@@ -61,12 +45,12 @@ export default function AboutPage() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {STATS.map((stat) => (
             <div
-              key={stat.label}
+              key={stat.labelKey}
               className="flex flex-col items-center justify-center rounded-xl border bg-card p-6 text-center shadow-sm transition-colors hover:bg-destructive hover:text-white group"
             >
               <p className="text-3xl font-bold">{stat.value}</p>
               <p className="mt-2 text-sm text-muted-foreground group-hover:text-white/80 transition-colors">
-                {stat.label}
+                {t(stat.labelKey)}
               </p>
             </div>
           ))}
@@ -76,14 +60,14 @@ export default function AboutPage() {
       {/* ── Ценности ── */}
       <section>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {VALUES.map(({ Icon, title, description }) => (
-            <div key={title} className="flex flex-col items-center text-center gap-4 p-6">
+          {VALUES.map(({ Icon, titleKey, descKey }) => (
+            <div key={titleKey} className="flex flex-col items-center text-center gap-4 p-6">
               <span className="flex size-16 items-center justify-center rounded-full bg-foreground text-background">
                 <Icon className="size-7" />
               </span>
               <div>
-                <p className="font-bold text-sm">{title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+                <p className="font-bold text-sm">{t(titleKey)}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t(descKey)}</p>
               </div>
             </div>
           ))}

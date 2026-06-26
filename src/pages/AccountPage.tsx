@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Camera, Heart, Package, User as UserIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 
 import { getUserProfileApi, updateUserProfileApi } from '@/api/userProfile'
@@ -12,14 +13,6 @@ import type { UpdateProfileDto, UserProfile } from '@/types/userProfile'
 
 type Tab = 'profile' | 'orders'
 
-const STATUS_LABELS: Record<Order['status'], string> = {
-  pending: 'Pending',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-}
-
 const STATUS_COLORS: Record<Order['status'], string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   processing: 'bg-blue-100 text-blue-700',
@@ -29,6 +22,7 @@ const STATUS_COLORS: Record<Order['status'], string> = {
 }
 
 export default function AccountPage() {
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = (searchParams.get('tab') as Tab | null) ?? 'profile'
 
@@ -40,37 +34,37 @@ export default function AccountPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <nav className="flex gap-2 text-sm text-muted-foreground mb-8">
         <Link to={ROUTES.home} className="hover:text-foreground transition-colors">
-          Home
+          {t('nav.home')}
         </Link>
         <span>/</span>
-        <span className="text-foreground">My Account</span>
+        <span className="text-foreground">{t('account.myAccount')}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
         {/* Sidebar */}
         <aside>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-3 mb-2">
-            Manage My Account
+            {t('account.manageAccount')}
           </p>
           <nav className="space-y-1">
             <SidebarBtn
               active={activeTab === 'profile'}
               onClick={() => switchTab('profile')}
               icon={<UserIcon className="size-4" />}
-              label="My Profile"
+              label={t('account.myProfile')}
             />
             <SidebarBtn
               active={activeTab === 'orders'}
               onClick={() => switchTab('orders')}
               icon={<Package className="size-4" />}
-              label="My Orders"
+              label={t('account.myOrders')}
             />
             <Link
               to={ROUTES.wishlist}
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-colors"
             >
               <Heart className="size-4" />
-              My Wishlist
+              {t('account.myWishlist')}
             </Link>
           </nav>
         </aside>
@@ -112,6 +106,7 @@ function SidebarBtn({
 // ─── Profile Tab ──────────────────────────────────────────────────────────────
 
 function ProfileTab() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(false)
@@ -187,7 +182,7 @@ function ProfileTab() {
       setSaveSuccess(true)
       setImageFile(null)
     } catch {
-      setSaveError('Failed to save changes. Please try again.')
+      setSaveError(t('account.saveError'))
     } finally {
       setSaving(false)
     }
@@ -208,7 +203,7 @@ function ProfileTab() {
 
   return (
     <div className="max-w-lg">
-      <h2 className="text-xl font-medium mb-6 text-brand">Edit Your Profile</h2>
+      <h2 className="text-xl font-medium mb-6 text-brand">{t('account.editProfile')}</h2>
 
       <form onSubmit={handleSave} className="space-y-5">
         {/* Avatar */}
@@ -224,7 +219,7 @@ function ProfileTab() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              aria-label="Change avatar"
+              aria-label={t('account.changeAvatar')}
               className="absolute bottom-0 right-0 flex size-7 items-center justify-center rounded-full bg-brand text-white shadow"
             >
               <Camera className="size-3.5" />
@@ -245,19 +240,19 @@ function ProfileTab() {
 
         {/* Name */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="First Name">
+          <Field label={t('account.firstName')}>
             <input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
+              placeholder={t('account.firstNamePlaceholder')}
               className={inputCls}
             />
           </Field>
-          <Field label="Last Name">
+          <Field label={t('account.lastName')}>
             <input
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
+              placeholder={t('account.lastNamePlaceholder')}
               className={inputCls}
             />
           </Field>
@@ -265,28 +260,28 @@ function ProfileTab() {
 
         {/* Email + Phone */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Email">
+          <Field label={t('account.email')}>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
+              placeholder={t('account.emailPlaceholder')}
               className={inputCls}
             />
           </Field>
-          <Field label="Phone Number">
+          <Field label={t('account.phone')}>
             <input
               type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+992 99 999 99 99"
+              placeholder={t('account.phonePlaceholder')}
               className={inputCls}
             />
           </Field>
         </div>
 
         {/* Date of Birth */}
-        <Field label="Date of Birth">
+        <Field label={t('account.dob')}>
           <input
             type="date"
             value={dob}
@@ -297,7 +292,7 @@ function ProfileTab() {
 
         {saveError && <p className="text-sm text-destructive">{saveError}</p>}
         {saveSuccess && (
-          <p className="text-sm text-green-600">Profile updated successfully!</p>
+          <p className="text-sm text-green-600">{t('account.saveSuccess')}</p>
         )}
 
         <div className="flex gap-3 pt-1">
@@ -306,14 +301,14 @@ function ProfileTab() {
             onClick={handleCancel}
             className="flex-1 rounded border border-border px-5 py-2 text-sm font-medium hover:bg-muted transition-colors"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
             disabled={saving}
             className="flex-1 rounded bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand/90 disabled:opacity-60 transition-colors"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? t('account.saving') : t('account.saveChanges')}
           </button>
         </div>
       </form>
@@ -324,6 +319,7 @@ function ProfileTab() {
 // ─── Orders Tab ───────────────────────────────────────────────────────────────
 
 function OrdersTab() {
+  const { t } = useTranslation()
   const orders = useOrderStore((s) => s.orders)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -331,15 +327,15 @@ function OrdersTab() {
     return (
       <div className="py-16 text-center">
         <Package className="mx-auto mb-4 size-12 text-muted-foreground" />
-        <h2 className="text-lg font-medium mb-2">No orders yet</h2>
+        <h2 className="text-lg font-medium mb-2">{t('account.noOrdersTitle')}</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          After placing an order, it will appear here.
+          {t('account.noOrdersDesc')}
         </p>
         <Link
           to={ROUTES.products}
           className="inline-block rounded bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
         >
-          Start Shopping
+          {t('account.startShopping')}
         </Link>
       </div>
     )
@@ -347,7 +343,7 @@ function OrdersTab() {
 
   return (
     <div>
-      <h2 className="text-xl font-medium mb-6 text-brand">My Orders</h2>
+      <h2 className="text-xl font-medium mb-6 text-brand">{t('account.myOrders')}</h2>
       <div className="space-y-3">
         {orders.map((order) => {
           const isOpen = expandedId === order.id
@@ -363,13 +359,13 @@ function OrdersTab() {
                   <p className="text-xs text-muted-foreground">
                     {new Date(order.createdAt).toLocaleDateString()}
                     {' · '}
-                    {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                    {t('account.itemsCount', { count: order.items.length })}
                   </p>
                 </div>
                 <span
                   className={`shrink-0 inline-block rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[order.status]}`}
                 >
-                  {STATUS_LABELS[order.status]}
+                  {t(`order.status.${order.status}`)}
                 </span>
                 <span className="shrink-0 text-sm font-semibold">${order.total.toFixed(2)}</span>
                 <span className="text-muted-foreground text-xs shrink-0">{isOpen ? '▲' : '▼'}</span>
@@ -415,7 +411,7 @@ function OrdersTab() {
 
                   <div className="flex flex-wrap gap-6 text-sm border-t border-border pt-3">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">Ship To</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t('account.shipTo')}</p>
                       <p>
                         {order.billing.firstName} {order.billing.lastName}
                       </p>
@@ -424,14 +420,14 @@ function OrdersTab() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">Payment</p>
-                      <p>{order.paymentMethod === 'bank' ? 'Bank / Card' : 'Cash on Delivery'}</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t('account.payment')}</p>
+                      <p>{order.paymentMethod === 'bank' ? t('order.paymentBank') : t('order.paymentCash')}</p>
                     </div>
                     <div className="ml-auto text-right">
-                      <p className="text-xs text-muted-foreground mb-0.5">Total</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t('common.total')}</p>
                       <p className="font-semibold">${order.total.toFixed(2)}</p>
                       {order.shipping === 0 && (
-                        <p className="text-xs text-green-600">Free shipping</p>
+                        <p className="text-xs text-green-600">{t('account.freeShipping')}</p>
                       )}
                     </div>
                   </div>

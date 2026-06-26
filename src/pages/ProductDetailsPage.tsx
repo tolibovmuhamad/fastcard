@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Heart, Minus, Plus, Star, Truck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { getProductById, getProducts } from '@/api'
@@ -13,6 +14,7 @@ import type { Product } from '@/types/product'
 const SIZES = ['XS', 'S', 'M', 'L', 'XL']
 
 export default function ProductDetailsPage() {
+  const { t } = useTranslation()
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
 
@@ -47,7 +49,7 @@ export default function ProductDetailsPage() {
         })
       })
       .then((rel) => setRelated(rel.filter((r) => r.id !== Number(productId))))
-      .catch(() => setError('Товар не найден'))
+      .catch(() => setError('not-found'))
       .finally(() => setLoading(false))
   }, [productId])
 
@@ -76,9 +78,9 @@ export default function ProductDetailsPage() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-24 text-center text-muted-foreground">
         <p className="text-4xl mb-4">😕</p>
-        <p className="text-lg font-medium">{error ?? 'Товар не найден'}</p>
+        <p className="text-lg font-medium">{t('productDetails.notFound')}</p>
         <Link to={ROUTES.products} className="mt-4 inline-block text-brand underline text-sm">
-          Вернуться в каталог
+          {t('productDetails.backToCatalog')}
         </Link>
       </div>
     )
@@ -96,7 +98,7 @@ export default function ProductDetailsPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="flex gap-2 text-sm text-muted-foreground mb-8">
-        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">Account</Link>
+        <Link to={ROUTES.home} className="hover:text-foreground transition-colors">{t('header.account')}</Link>
         <span>/</span>
         <Link to={ROUTES.products} className="hover:text-foreground transition-colors">{catName}</Link>
         <span>/</span>
@@ -119,7 +121,7 @@ export default function ProductDetailsPage() {
                 )}
               >
                 {img ? (
-                  <img src={img} alt={`Фото ${i + 1}`} className="h-full w-full object-contain p-1" />
+                  <img src={img} alt={t('productDetails.photoAlt', { index: i + 1 })} className="h-full w-full object-contain p-1" />
                 ) : (
                   <div className="h-full w-full bg-muted" />
                 )}
@@ -136,7 +138,7 @@ export default function ProductDetailsPage() {
                 className="h-full w-full object-contain p-6"
               />
             ) : (
-              <span className="text-muted-foreground text-sm">Нет фото</span>
+              <span className="text-muted-foreground text-sm">{t('common.noImage')}</span>
             )}
           </div>
         </div>
@@ -155,10 +157,10 @@ export default function ProductDetailsPage() {
                 />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">(150 Reviews)</span>
+            <span className="text-sm text-muted-foreground">{t('productDetails.reviews', { count: 150 })}</span>
             <span className="text-muted-foreground">|</span>
             <span className={cn('text-sm font-medium', inStock ? 'text-green-600' : 'text-destructive')}>
-              {inStock ? 'In Stock' : 'Out of Stock'}
+              {inStock ? t('common.inStock') : t('common.outOfStock')}
             </span>
           </div>
 
@@ -178,7 +180,7 @@ export default function ProductDetailsPage() {
           {/* Colours */}
           {product.color && (
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">Colours:</span>
+              <span className="text-sm font-medium">{t('productDetails.colours')}</span>
               <button
                 className="size-5 rounded-full border-2 border-brand bg-blue-400"
                 aria-label="Blue"
@@ -192,7 +194,7 @@ export default function ProductDetailsPage() {
 
           {/* Size */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium">Size:</span>
+            <span className="text-sm font-medium">{t('productDetails.size')}</span>
             {SIZES.map((s) => (
               <button
                 key={s}
@@ -215,7 +217,7 @@ export default function ProductDetailsPage() {
               onClick={() => product && addItem(product, qty, product.color ?? undefined, selectedSize)}
               className="w-full rounded border border-border py-2 text-sm font-medium hover:bg-muted transition-colors"
             >
-              Add to Cart
+              {t('common.addToCart')}
             </button>
           )}
 
@@ -225,7 +227,7 @@ export default function ProductDetailsPage() {
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 className="px-3 py-2 hover:bg-muted transition-colors"
-                aria-label="Уменьшить"
+                aria-label={t('productDetails.decrease')}
               >
                 <Minus className="size-4" />
               </button>
@@ -233,7 +235,7 @@ export default function ProductDetailsPage() {
               <button
                 onClick={() => setQty((q) => Math.min(product.quantity, q + 1))}
                 className="px-3 py-2 hover:bg-muted transition-colors"
-                aria-label="Увеличить"
+                aria-label={t('productDetails.increase')}
               >
                 <Plus className="size-4" />
               </button>
@@ -249,12 +251,12 @@ export default function ProductDetailsPage() {
               }}
               className="flex-1 rounded bg-brand py-2 text-sm font-medium text-white hover:bg-brand/90 disabled:opacity-50 transition-colors"
             >
-              Buy Now
+              {t('common.buyNow')}
             </button>
 
             <button
               onClick={() => product && toggleItem(product)}
-              aria-label={wishlisted ? 'Убрать из избранного' : 'Добавить в избранное'}
+              aria-label={wishlisted ? t('product.removeFromWishlist') : t('product.addToWishlist')}
               className={cn(
                 'flex size-10 items-center justify-center rounded border transition-colors',
                 wishlisted ? 'bg-brand text-white border-brand' : 'border-border hover:border-brand'
@@ -269,18 +271,18 @@ export default function ProductDetailsPage() {
             <div className="flex items-start gap-4 p-4">
               <Truck className="size-8 shrink-0" />
               <div>
-                <p className="text-sm font-medium">Free Delivery</p>
+                <p className="text-sm font-medium">{t('productDetails.freeDelivery')}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Enter your postal code for Delivery Availability
+                  {t('productDetails.freeDeliveryDesc')}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-4 p-4">
               <Truck className="size-8 shrink-0 rotate-180" />
               <div>
-                <p className="text-sm font-medium">Return Delivery</p>
+                <p className="text-sm font-medium">{t('productDetails.returnDelivery')}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Free 30 Days Delivery Returns. <span className="underline cursor-pointer">Details</span>
+                  {t('productDetails.returnDeliveryDesc')} <span className="underline cursor-pointer">{t('productDetails.details')}</span>
                 </p>
               </div>
             </div>
@@ -293,7 +295,7 @@ export default function ProductDetailsPage() {
         <section className="mt-16">
           <div className="flex items-center gap-3 mb-3">
             <span className="w-4 h-8 rounded-sm bg-brand inline-block" />
-            <span className="text-sm font-semibold text-brand">Related Item</span>
+            <span className="text-sm font-semibold text-brand">{t('productDetails.relatedItem')}</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {related.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}

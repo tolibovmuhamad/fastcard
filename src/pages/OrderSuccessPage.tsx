@@ -1,17 +1,10 @@
 import { CheckCircle2, Package } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
 import { ROUTES } from '@/routes/paths'
 import { useOrderStore } from '@/store/orderStore'
 import type { Order } from '@/types/cart'
-
-const STATUS_LABELS: Record<Order['status'], string> = {
-  pending: 'Pending',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-}
 
 const STATUS_COLORS: Record<Order['status'], string> = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -22,6 +15,7 @@ const STATUS_COLORS: Record<Order['status'], string> = {
 }
 
 export default function OrderSuccessPage() {
+  const { t } = useTranslation()
   const { orderId } = useParams<{ orderId: string }>()
   const getOrderById = useOrderStore((s) => s.getOrderById)
   const order = orderId ? getOrderById(orderId) : undefined
@@ -30,15 +24,15 @@ export default function OrderSuccessPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <Package className="mx-auto mb-4 size-12 text-muted-foreground" />
-        <h1 className="text-xl font-semibold mb-2">Order not found</h1>
+        <h1 className="text-xl font-semibold mb-2">{t('orderSuccess.notFoundTitle')}</h1>
         <p className="text-muted-foreground mb-6">
-          We couldn't find this order. It may have expired from your browser storage.
+          {t('orderSuccess.notFoundDesc')}
         </p>
         <Link
           to={ROUTES.products}
           className="inline-block rounded bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
         >
-          Continue Shopping
+          {t('orderSuccess.continueShopping')}
         </Link>
       </div>
     )
@@ -48,12 +42,12 @@ export default function OrderSuccessPage() {
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-10">
         <CheckCircle2 className="mx-auto mb-4 size-16 text-green-500" />
-        <h1 className="text-2xl font-semibold">Order Placed Successfully!</h1>
+        <h1 className="text-2xl font-semibold">{t('orderSuccess.successTitle')}</h1>
         <p className="text-muted-foreground mt-2">
-          Thank you for your purchase. Your order has been received.
+          {t('orderSuccess.successDesc')}
         </p>
         <p className="mt-1 text-sm">
-          Order ID: <span className="font-medium text-foreground">{order.id}</span>
+          {t('orderSuccess.orderId')} <span className="font-medium text-foreground">{order.id}</span>
         </p>
       </div>
 
@@ -61,7 +55,7 @@ export default function OrderSuccessPage() {
         {/* Items */}
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-            Items Ordered
+            {t('orderSuccess.itemsOrdered')}
           </h2>
           <div className="space-y-3">
             {order.items.map((item) => {
@@ -101,17 +95,17 @@ export default function OrderSuccessPage() {
         {/* Pricing */}
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
+            <span className="text-muted-foreground">{t('common.subtotal')}</span>
             <span>${order.subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Shipping</span>
+            <span className="text-muted-foreground">{t('common.shipping')}</span>
             <span className={order.shipping === 0 ? 'text-green-600' : ''}>
-              {order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}
+              {order.shipping === 0 ? t('common.free') : `$${order.shipping.toFixed(2)}`}
             </span>
           </div>
           <div className="flex justify-between font-semibold text-base border-t border-border pt-2">
-            <span>Total</span>
+            <span>{t('common.total')}</span>
             <span>${order.total.toFixed(2)}</span>
           </div>
         </div>
@@ -121,23 +115,23 @@ export default function OrderSuccessPage() {
         {/* Meta */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Payment</p>
-            <p>{order.paymentMethod === 'bank' ? 'Bank / Card' : 'Cash on Delivery'}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('orderSuccess.payment')}</p>
+            <p>{order.paymentMethod === 'bank' ? t('order.paymentBank') : t('order.paymentCash')}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Status</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('orderSuccess.status')}</p>
             <span
               className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[order.status]}`}
             >
-              {STATUS_LABELS[order.status]}
+              {t(`order.status.${order.status}`)}
             </span>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Date</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('orderSuccess.date')}</p>
             <p>{new Date(order.createdAt).toLocaleDateString()}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Ship To</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('orderSuccess.shipTo')}</p>
             <p className="line-clamp-1">
               {order.billing.firstName} {order.billing.lastName}, {order.billing.city}
             </p>
@@ -150,13 +144,13 @@ export default function OrderSuccessPage() {
           to={ROUTES.products}
           className="flex-1 rounded border border-border px-5 py-2.5 text-center text-sm font-medium hover:bg-muted transition-colors"
         >
-          Continue Shopping
+          {t('orderSuccess.continueShopping')}
         </Link>
         <Link
           to={`${ROUTES.account}?tab=orders`}
           className="flex-1 rounded bg-brand px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-brand/90 transition-colors"
         >
-          View My Orders
+          {t('orderSuccess.viewMyOrders')}
         </Link>
       </div>
     </div>

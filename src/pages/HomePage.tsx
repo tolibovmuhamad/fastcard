@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Headphones, RotateCcw, Truck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 
 import { getCategories, getProducts } from '@/api'
@@ -35,6 +36,7 @@ const HERO_SLIDES = [
 ]
 
 export default function HomePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const [flashProducts, setFlashProducts] = useState<Product[]>([])
@@ -100,15 +102,15 @@ export default function HomePage() {
         {/* Hero-баннер */}
         <div className="flex-1 ml-0 md:ml-8 relative overflow-hidden rounded-md bg-black min-h-[280px] md:min-h-[340px]">
           <div className="absolute inset-0 flex flex-col justify-center pl-8 md:pl-12 text-white z-10">
-            <p className="text-sm mb-2 opacity-80">{HERO_SLIDES[heroIndex].label}</p>
+            <p className="text-sm mb-2 opacity-80">{t('home.heroLabel')}</p>
             <h1 className="text-3xl md:text-5xl font-semibold leading-tight max-w-xs">
-              {HERO_SLIDES[heroIndex].title}
+              {t('home.heroTitle')}
             </h1>
             <button
               onClick={() => navigate(ROUTES.products)}
               className="mt-6 inline-flex items-center gap-2 underline underline-offset-4 text-sm hover:text-brand transition-colors w-fit"
             >
-              {HERO_SLIDES[heroIndex].cta} →
+              {t('common.shopNow')} →
             </button>
           </div>
 
@@ -127,17 +129,17 @@ export default function HomePage() {
 
       {/* ── Flash Sales ───────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <SectionLabel label="Today's" />
+        <SectionLabel label={t('home.todays')} />
         <div className="flex items-end gap-8 mb-6">
-          <h2 className="text-2xl font-semibold">Flash Sales</h2>
+          <h2 className="text-2xl font-semibold">{t('home.flashSales')}</h2>
           <div className="flex items-end gap-3 text-sm">
-            <CountUnit label="Days" value={countdown.days} />
+            <CountUnit label={t('home.days')} value={countdown.days} />
             <Colon />
-            <CountUnit label="Hours" value={countdown.hours} />
+            <CountUnit label={t('home.hours')} value={countdown.hours} />
             <Colon />
-            <CountUnit label="Minutes" value={countdown.minutes} />
+            <CountUnit label={t('home.minutes')} value={countdown.minutes} />
             <Colon />
-            <CountUnit label="Seconds" value={countdown.seconds} />
+            <CountUnit label={t('home.seconds')} value={countdown.seconds} />
           </div>
           <div className="ml-auto flex gap-2">
             <ArrowBtn onClick={() => scrollFlash('prev')} dir="left" />
@@ -156,7 +158,7 @@ export default function HomePage() {
             to={ROUTES.products}
             className="rounded bg-brand px-12 py-3 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
           >
-            View All Products
+            {t('common.viewAllProducts')}
           </Link>
         </div>
       </section>
@@ -165,9 +167,9 @@ export default function HomePage() {
 
       {/* ── Browse By Category ────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <SectionLabel label="Categories" />
+        <SectionLabel label={t('home.categories')} />
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Browse By Category</h2>
+          <h2 className="text-2xl font-semibold">{t('home.browseByCategory')}</h2>
           <div className="flex gap-2">
             <ArrowBtn
               onClick={() => setCatIndex((i) => Math.max(0, i - 1))}
@@ -206,14 +208,14 @@ export default function HomePage() {
 
       {/* ── Best Selling ──────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <SectionLabel label="This Month" />
+        <SectionLabel label={t('home.thisMonth')} />
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Best Selling Products</h2>
+          <h2 className="text-2xl font-semibold">{t('home.bestSelling')}</h2>
           <Link
             to={ROUTES.products}
             className="rounded border border-brand px-6 py-2 text-sm font-medium text-brand hover:bg-brand hover:text-white transition-colors"
           >
-            View All
+            {t('common.viewAll')}
           </Link>
         </div>
 
@@ -228,9 +230,9 @@ export default function HomePage() {
       <section className="max-w-6xl mx-auto px-4 py-6">
         <div className="rounded-md bg-black flex items-center justify-between px-8 md:px-16 py-10 text-white overflow-hidden relative">
           <div className="z-10">
-            <p className="text-sm text-brand mb-2">Categories</p>
+            <p className="text-sm text-brand mb-2">{t('home.categories')}</p>
             <h2 className="text-2xl md:text-4xl font-semibold leading-tight max-w-xs">
-              Enhance Your Music Experience
+              {t('home.enhanceMusic')}
             </h2>
             <div className="mt-4 flex gap-3">
               {['23h', '05m', '59s', '35ms'].map((v) => (
@@ -243,7 +245,7 @@ export default function HomePage() {
               onClick={() => navigate(ROUTES.products)}
               className="mt-6 rounded bg-brand px-8 py-2 text-sm font-medium hover:bg-brand/90 transition-colors"
             >
-              Buy Now!
+              {t('home.buyNowBang')}
             </button>
           </div>
           <div className="hidden md:block w-64 h-48 bg-white/5 rounded-full blur-3xl absolute right-32 top-0" />
@@ -253,9 +255,9 @@ export default function HomePage() {
 
       {/* ── Explore Our Products ──────────────────── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <SectionLabel label="Our Products" />
+        <SectionLabel label={t('home.ourProducts')} />
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Explore Our Products</h2>
+          <h2 className="text-2xl font-semibold">{t('home.exploreProducts')}</h2>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
@@ -269,15 +271,15 @@ export default function HomePage() {
             to={ROUTES.products}
             className="rounded bg-brand px-12 py-3 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
           >
-            View All Products
+            {t('common.viewAllProducts')}
           </Link>
         </div>
       </section>
 
       {/* ── New Arrival ───────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
-        <SectionLabel label="Featured" />
-        <h2 className="text-2xl font-semibold mb-6">New Arrival</h2>
+        <SectionLabel label={t('home.featured')} />
+        <h2 className="text-2xl font-semibold mb-6">{t('home.newArrival')}</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 min-h-[400px]">
           {/* Big left tile */}
@@ -286,11 +288,11 @@ export default function HomePage() {
             className="col-span-2 row-span-2 rounded-md bg-black flex items-end p-6 text-left group"
           >
             <div className="text-white">
-              <h3 className="text-xl font-semibold">PlayStation 5</h3>
+              <h3 className="text-xl font-semibold">{t('home.ps5Title')}</h3>
               <p className="text-xs text-white/70 mt-1 mb-3">
-                Black and White version of the PS5 coming out on sale.
+                {t('home.ps5Desc')}
               </p>
-              <span className="underline text-sm group-hover:text-brand transition-colors">Shop Now</span>
+              <span className="underline text-sm group-hover:text-brand transition-colors">{t('common.shopNow')}</span>
             </div>
           </button>
 
@@ -300,9 +302,9 @@ export default function HomePage() {
             className="col-span-2 rounded-md bg-[#0d0d0d] flex items-end p-6 text-left group"
           >
             <div className="text-white">
-              <h3 className="font-semibold">Women's Collections</h3>
-              <p className="text-xs text-white/70 mt-1 mb-3">Featured woman collections that give you another vibe.</p>
-              <span className="underline text-sm group-hover:text-brand transition-colors">Shop Now</span>
+              <h3 className="font-semibold">{t('home.womenTitle')}</h3>
+              <p className="text-xs text-white/70 mt-1 mb-3">{t('home.womenDesc')}</p>
+              <span className="underline text-sm group-hover:text-brand transition-colors">{t('common.shopNow')}</span>
             </div>
           </button>
 
@@ -312,9 +314,9 @@ export default function HomePage() {
             className="rounded-md bg-[#1a1a1a] flex items-end p-4 text-left group"
           >
             <div className="text-white">
-              <h3 className="text-sm font-semibold">Speakers</h3>
-              <p className="text-xs text-white/70 mt-1 mb-2">Amazon wireless speakers</p>
-              <span className="underline text-xs group-hover:text-brand transition-colors">Shop Now</span>
+              <h3 className="text-sm font-semibold">{t('home.speakersTitle')}</h3>
+              <p className="text-xs text-white/70 mt-1 mb-2">{t('home.speakersDesc')}</p>
+              <span className="underline text-xs group-hover:text-brand transition-colors">{t('common.shopNow')}</span>
             </div>
           </button>
           <button
@@ -322,9 +324,9 @@ export default function HomePage() {
             className="rounded-md bg-[#1a1a1a] flex items-end p-4 text-left group"
           >
             <div className="text-white">
-              <h3 className="text-sm font-semibold">Perfume</h3>
-              <p className="text-xs text-white/70 mt-1 mb-2">GUCCI INTENSE OUD EDP</p>
-              <span className="underline text-xs group-hover:text-brand transition-colors">Shop Now</span>
+              <h3 className="text-sm font-semibold">{t('home.perfumeTitle')}</h3>
+              <p className="text-xs text-white/70 mt-1 mb-2">{t('home.perfumeDesc')}</p>
+              <span className="underline text-xs group-hover:text-brand transition-colors">{t('common.shopNow')}</span>
             </div>
           </button>
         </div>
@@ -335,18 +337,18 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           <Advantage
             icon={<Truck className="size-10" />}
-            title="FREE AND FAST DELIVERY"
-            desc="Free delivery for all orders over $140"
+            title={t('home.serviceDeliveryTitle')}
+            desc={t('home.serviceDeliveryDesc')}
           />
           <Advantage
             icon={<Headphones className="size-10" />}
-            title="24/7 CUSTOMER SERVICE"
-            desc="Friendly 24/7 customer support"
+            title={t('home.serviceSupportTitle')}
+            desc={t('home.serviceSupportDesc')}
           />
           <Advantage
             icon={<RotateCcw className="size-10" />}
-            title="MONEY BACK GUARANTEE"
-            desc="We return money within 30 days"
+            title={t('home.serviceGuaranteeTitle')}
+            desc={t('home.serviceGuaranteeDesc')}
           />
         </div>
       </section>

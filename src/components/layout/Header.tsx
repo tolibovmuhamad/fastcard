@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Heart, LogOut, Menu, Search, ShoppingCart, User, UserCircle, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router'
 
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher'
+import ThemeToggle from '@/components/layout/ThemeToggle'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/routes/paths'
@@ -10,19 +13,20 @@ import { selectTotalItems, useCartStore } from '@/store/cartStore'
 import { selectFavoritesCount, useFavoritesStore } from '@/store/favoritesStore'
 
 const NAV_ITEMS_GUEST = [
-  { to: ROUTES.home, label: 'Home', end: true },
-  { to: ROUTES.contact, label: 'Contact' },
-  { to: ROUTES.about, label: 'About' },
-  { to: ROUTES.register, label: 'Sign Up' },
+  { to: ROUTES.home, labelKey: 'nav.home', end: true },
+  { to: ROUTES.contact, labelKey: 'nav.contact' },
+  { to: ROUTES.about, labelKey: 'nav.about' },
+  { to: ROUTES.register, labelKey: 'nav.signUp' },
 ]
 
 const NAV_ITEMS_AUTH = [
-  { to: ROUTES.home, label: 'Home', end: true },
-  { to: ROUTES.contact, label: 'Contact' },
-  { to: ROUTES.about, label: 'About' },
+  { to: ROUTES.home, labelKey: 'nav.home', end: true },
+  { to: ROUTES.contact, labelKey: 'nav.contact' },
+  { to: ROUTES.about, labelKey: 'nav.about' },
 ]
 
 export default function Header() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
 
@@ -87,7 +91,7 @@ export default function Header() {
           <nav className="hidden items-center gap-6 text-sm md:flex">
             {navItems.map((item) => (
               <NavLink
-                key={item.to + item.label}
+                key={item.to + item.labelKey}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
@@ -97,7 +101,7 @@ export default function Header() {
                   )
                 }
               >
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
           </nav>
@@ -112,13 +116,13 @@ export default function Header() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="What are you looking for?"
-              aria-label="Поиск товаров"
+              placeholder={t('common.searchPlaceholder')}
+              aria-label={t('common.search')}
               className="bg-muted/50 pr-9"
             />
             <button
               type="submit"
-              aria-label="Найти"
+              aria-label={t('common.search')}
               className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
             >
               <Search className="size-4" />
@@ -127,10 +131,16 @@ export default function Header() {
 
           {/* Иконки */}
           <div className="ml-auto flex items-center gap-1 sm:ml-0">
-            <IconLink to={ROUTES.wishlist} label="Избранное" count={favCount}>
+            {/* Язык и тема (десктоп/планшет — в мобильном они в меню) */}
+            <div className="hidden items-center gap-1 sm:flex">
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
+
+            <IconLink to={ROUTES.wishlist} label={t('header.wishlist')} count={favCount}>
               <Heart className="size-5" />
             </IconLink>
-            <IconLink to={ROUTES.cart} label="Корзина" count={cartCount}>
+            <IconLink to={ROUTES.cart} label={t('header.cart')} count={cartCount}>
               <ShoppingCart className="size-5" />
             </IconLink>
 
@@ -138,7 +148,7 @@ export default function Header() {
               <div ref={accountRef} className="relative">
                 <button
                   onClick={() => setAccountOpen((o) => !o)}
-                  aria-label="Аккаунт"
+                  aria-label={t('header.account')}
                   className={cn(
                     'hover:bg-accent relative inline-flex size-9 items-center justify-center rounded-md transition-colors',
                     accountOpen && 'bg-accent'
@@ -159,7 +169,7 @@ export default function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
                     >
                       <User className="size-4" />
-                      Account
+                      {t('header.account')}
                     </Link>
                     <Link
                       to={ROUTES.account + '?tab=orders'}
@@ -167,20 +177,20 @@ export default function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
                     >
                       <ShoppingCart className="size-4" />
-                      My Order
+                      {t('header.myOrder')}
                     </Link>
                     <button
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
                     >
                       <LogOut className="size-4" />
-                      Logout
+                      {t('header.logout')}
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <IconLink to={ROUTES.login} label="Войти">
+              <IconLink to={ROUTES.login} label={t('header.login')}>
                 <User className="size-5" />
               </IconLink>
             )}
@@ -188,7 +198,7 @@ export default function Header() {
             {/* Гамбургер (только мобильный) */}
             <button
               onClick={() => setMobileNavOpen((o) => !o)}
-              aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'}
+              aria-label={mobileNavOpen ? t('header.closeMenu') : t('header.openMenu')}
               className="hover:bg-accent inline-flex size-9 items-center justify-center rounded-md transition-colors md:hidden"
             >
               {mobileNavOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -207,14 +217,14 @@ export default function Header() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="What are you looking for?"
-                aria-label="Поиск товаров"
+                placeholder={t('common.searchPlaceholder')}
+                aria-label={t('common.search')}
                 className="bg-muted/50 pr-9"
                 autoFocus
               />
               <button
                 type="submit"
-                aria-label="Найти"
+                aria-label={t('common.search')}
                 className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
               >
                 <Search className="size-4" />
@@ -222,11 +232,17 @@ export default function Header() {
             </form>
           </div>
 
+          {/* Язык и тема */}
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+
           {/* Навигация */}
           <nav className="flex flex-col divide-y overflow-y-auto">
             {navItems.map((item) => (
               <NavLink
-                key={item.to + item.label}
+                key={item.to + item.labelKey}
                 to={item.to}
                 end={item.end}
                 onClick={() => setMobileNavOpen(false)}
@@ -237,7 +253,7 @@ export default function Header() {
                   )
                 }
               >
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
 
@@ -249,7 +265,7 @@ export default function Header() {
                   className="flex items-center gap-3 px-4 py-4 text-base hover:bg-muted transition-colors"
                 >
                   <User className="size-5" />
-                  Account
+                  {t('header.account')}
                 </Link>
                 <Link
                   to={ROUTES.account + '?tab=orders'}
@@ -257,14 +273,14 @@ export default function Header() {
                   className="flex items-center gap-3 px-4 py-4 text-base hover:bg-muted transition-colors"
                 >
                   <ShoppingCart className="size-5" />
-                  My Orders
+                  {t('header.myOrders')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-4 text-base text-destructive hover:bg-muted transition-colors text-left"
                 >
                   <LogOut className="size-5" />
-                  Logout
+                  {t('header.logout')}
                 </button>
               </>
             )}

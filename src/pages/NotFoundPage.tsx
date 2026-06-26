@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/routes/paths'
 
 export default function NotFoundPage() {
+  const { t } = useTranslation()
   return (
     <section className="flex flex-col items-center gap-8 py-16 text-center">
       {/* Визуальный блок 404 */}
@@ -21,14 +23,14 @@ export default function NotFoundPage() {
       </div>
 
       <div className="space-y-3 max-w-md">
-        <h1 className="text-2xl sm:text-3xl font-bold">Страница не найдена</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('notFound.title')}</h1>
         <p className="text-muted-foreground">
-          Возможно, ссылка устарела, была удалена или адрес введён неверно.
+          {t('notFound.desc')}
         </p>
       </div>
 
       <Button asChild size="lg">
-        <Link to={ROUTES.home}>← Вернуться на главную</Link>
+        <Link to={ROUTES.home}>{t('notFound.backHome')}</Link>
       </Button>
     </section>
   )
