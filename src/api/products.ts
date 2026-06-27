@@ -64,7 +64,21 @@ export async function getProductById(id: number | string): Promise<Product> {
   const res = await apiClient.get('/Product/get-product-by-id', { params: { id } })
   // API: { data: { id, productName, images: [...], ... }, ... }
   const raw = res.data?.data ?? res.data
-  return normalizeDetailProduct(raw as Record<string, unknown>)
+  const product = normalizeDetailProduct(raw as Record<string, unknown>)
+
+  // Эндпоинт детальной карточки всегда возвращает quantity: 0 (баг API),
+  // поэтому реальный остаток берём из списка по subCategoryId.
+  if (product.quantity === 0 && product.subCategoryId != null) {
+    try {
+      const list = await getProducts({ subCategoryId: product.subCategoryId, pageSize: 100 })
+      const match = list.find((p) => p.id === product.id)
+      if (match) product.quantity = match.quantity
+    } catch {
+      // если список недоступен — оставляем quantity из детального ответа
+    }
+  }
+
+  return product
 }
 
 export async function addProduct(formData: FormData): Promise<void> {
